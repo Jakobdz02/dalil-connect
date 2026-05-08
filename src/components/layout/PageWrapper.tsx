@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
+import { Navbar } from "./Navbar";
 
 export function PageWrapper({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen bg-background text-foreground">{children}</div>;
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <Navbar />
+      <main className="flex-1">{children}</main>
+    </div>
+  );
 }
