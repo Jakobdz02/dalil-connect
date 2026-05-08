@@ -9,38 +9,279 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GuidesIndexRouteImport } from './routes/guides.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as GuidesIdRouteImport } from './routes/guides.$id'
+import { Route as GuideProfileRouteImport } from './routes/guide.profile'
+import { Route as GuideMessagesRouteImport } from './routes/guide.messages'
+import { Route as GuideDashboardRouteImport } from './routes/guide.dashboard'
+import { Route as GuideBookingsRouteImport } from './routes/guide.bookings'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminGuidesRouteImport } from './routes/admin.guides'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingsRoute = BookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesIndexRoute = GuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesIdRoute = GuidesIdRouteImport.update({
+  id: '/guides/$id',
+  path: '/guides/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideProfileRoute = GuideProfileRouteImport.update({
+  id: '/guide/profile',
+  path: '/guide/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideMessagesRoute = GuideMessagesRouteImport.update({
+  id: '/guide/messages',
+  path: '/guide/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideDashboardRoute = GuideDashboardRouteImport.update({
+  id: '/guide/dashboard',
+  path: '/guide/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideBookingsRoute = GuideBookingsRouteImport.update({
+  id: '/guide/bookings',
+  path: '/guide/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminGuidesRoute = AdminGuidesRouteImport.update({
+  id: '/admin/guides',
+  path: '/admin/guides',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bookings': typeof BookingsRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
+  '/admin/guides': typeof AdminGuidesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/guide/bookings': typeof GuideBookingsRoute
+  '/guide/dashboard': typeof GuideDashboardRoute
+  '/guide/messages': typeof GuideMessagesRoute
+  '/guide/profile': typeof GuideProfileRoute
+  '/guides/$id': typeof GuidesIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/guides/': typeof GuidesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bookings': typeof BookingsRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
+  '/admin/guides': typeof AdminGuidesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/guide/bookings': typeof GuideBookingsRoute
+  '/guide/dashboard': typeof GuideDashboardRoute
+  '/guide/messages': typeof GuideMessagesRoute
+  '/guide/profile': typeof GuideProfileRoute
+  '/guides/$id': typeof GuidesIdRoute
+  '/admin': typeof AdminIndexRoute
+  '/guides': typeof GuidesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bookings': typeof BookingsRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
+  '/profile': typeof ProfileRoute
+  '/signup': typeof SignupRoute
+  '/admin/guides': typeof AdminGuidesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/guide/bookings': typeof GuideBookingsRoute
+  '/guide/dashboard': typeof GuideDashboardRoute
+  '/guide/messages': typeof GuideMessagesRoute
+  '/guide/profile': typeof GuideProfileRoute
+  '/guides/$id': typeof GuidesIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/guides/': typeof GuidesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/bookings'
+    | '/dashboard'
+    | '/login'
+    | '/messages'
+    | '/profile'
+    | '/signup'
+    | '/admin/guides'
+    | '/admin/users'
+    | '/guide/bookings'
+    | '/guide/dashboard'
+    | '/guide/messages'
+    | '/guide/profile'
+    | '/guides/$id'
+    | '/admin/'
+    | '/guides/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/bookings'
+    | '/dashboard'
+    | '/login'
+    | '/messages'
+    | '/profile'
+    | '/signup'
+    | '/admin/guides'
+    | '/admin/users'
+    | '/guide/bookings'
+    | '/guide/dashboard'
+    | '/guide/messages'
+    | '/guide/profile'
+    | '/guides/$id'
+    | '/admin'
+    | '/guides'
+  id:
+    | '__root__'
+    | '/'
+    | '/bookings'
+    | '/dashboard'
+    | '/login'
+    | '/messages'
+    | '/profile'
+    | '/signup'
+    | '/admin/guides'
+    | '/admin/users'
+    | '/guide/bookings'
+    | '/guide/dashboard'
+    | '/guide/messages'
+    | '/guide/profile'
+    | '/guides/$id'
+    | '/admin/'
+    | '/guides/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BookingsRoute: typeof BookingsRoute
+  DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRoute
+  ProfileRoute: typeof ProfileRoute
+  SignupRoute: typeof SignupRoute
+  AdminGuidesRoute: typeof AdminGuidesRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  GuideBookingsRoute: typeof GuideBookingsRoute
+  GuideDashboardRoute: typeof GuideDashboardRoute
+  GuideMessagesRoute: typeof GuideMessagesRoute
+  GuideProfileRoute: typeof GuideProfileRoute
+  GuidesIdRoute: typeof GuidesIdRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  GuidesIndexRoute: typeof GuidesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bookings': {
+      id: '/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof BookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +289,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/': {
+      id: '/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof GuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$id': {
+      id: '/guides/$id'
+      path: '/guides/$id'
+      fullPath: '/guides/$id'
+      preLoaderRoute: typeof GuidesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/profile': {
+      id: '/guide/profile'
+      path: '/guide/profile'
+      fullPath: '/guide/profile'
+      preLoaderRoute: typeof GuideProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/messages': {
+      id: '/guide/messages'
+      path: '/guide/messages'
+      fullPath: '/guide/messages'
+      preLoaderRoute: typeof GuideMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/dashboard': {
+      id: '/guide/dashboard'
+      path: '/guide/dashboard'
+      fullPath: '/guide/dashboard'
+      preLoaderRoute: typeof GuideDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/bookings': {
+      id: '/guide/bookings'
+      path: '/guide/bookings'
+      fullPath: '/guide/bookings'
+      preLoaderRoute: typeof GuideBookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/guides': {
+      id: '/admin/guides'
+      path: '/admin/guides'
+      fullPath: '/admin/guides'
+      preLoaderRoute: typeof AdminGuidesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BookingsRoute: BookingsRoute,
+  DashboardRoute: DashboardRoute,
+  LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRoute,
+  ProfileRoute: ProfileRoute,
+  SignupRoute: SignupRoute,
+  AdminGuidesRoute: AdminGuidesRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  GuideBookingsRoute: GuideBookingsRoute,
+  GuideDashboardRoute: GuideDashboardRoute,
+  GuideMessagesRoute: GuideMessagesRoute,
+  GuideProfileRoute: GuideProfileRoute,
+  GuidesIdRoute: GuidesIdRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  GuidesIndexRoute: GuidesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
