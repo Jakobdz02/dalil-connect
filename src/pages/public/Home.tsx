@@ -5,7 +5,7 @@ import { PageWrapper } from "@/components/layout/PageWrapper";
 
 export default function Home() {
   return (
-    <PageWrapper>
+    <PageWrapper showFooter fullWidth>
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div
