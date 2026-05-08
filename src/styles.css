@@ -14,6 +14,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
 
   --font-serif: "DM Serif Display", Georgia, serif;
+  --font-display: "DM Serif Display", Georgia, serif;
   --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
   --font-arabic: "Noto Kufi Arabic", system-ui, sans-serif;
 

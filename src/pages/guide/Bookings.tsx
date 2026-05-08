@@ -1,1 +1,9 @@
-export default function GuideBookings() { return <div className="p-8">Guide bookings (stub)</div>; }
+import { PageWrapper } from "@/components/layout/PageWrapper";
+
+export default function GuideBookings() {
+  return (
+    <PageWrapper>
+      <h1 className="font-display text-4xl text-primary py-10">Guide bookings</h1>
+    </PageWrapper>
+  );
+}
