@@ -72,7 +72,7 @@ function FooterCol({
       <ul className="space-y-2 text-sm text-white/70">
         {links.map((l) => (
           <li key={l.label}>
-            <Link to={l.to} className="hover:text-white transition-colors">
+            <Link to={l.to as "/guides"} className="hover:text-white transition-colors">
               {l.label}
             </Link>
           </li>

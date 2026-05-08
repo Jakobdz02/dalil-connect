@@ -63,7 +63,7 @@ export function Navbar() {
           {links.map((l) => (
             <Link
               key={l.to}
-              to={l.to}
+              to={l.to as "/guides"}
               className="text-sm text-foreground hover:text-primary transition-colors px-3 py-2 rounded-md"
             >
               {l.label}
@@ -127,7 +127,7 @@ export function Navbar() {
             {links.map((l) => (
               <Link
                 key={l.to}
-                to={l.to}
+                to={l.to as "/guides"}
                 onClick={() => setOpen(false)}
                 className="text-sm text-foreground hover:bg-muted rounded-md px-3 py-2"
               >
