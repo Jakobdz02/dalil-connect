@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { MapPin, MessageCircle, Calendar, UserX } from "lucide-react";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Avatar } from "@/components/shared/Avatar";
@@ -16,9 +17,27 @@ import type { GuideProfile } from "@/types";
 export default function GuidePublicProfile({ id }: { id: string }) {
   const { user } = useAuth();
   const { role } = useRole();
+  const navigate = useNavigate();
   const [guide, setGuide] = useState<GuideProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookingOpen, setBookingOpen] = useState(false);
+
+  const handleMessage = async () => {
+    if (!user || !guide) return;
+    const { data } = await supabase
+      .from("bookings")
+      .select("id")
+      .eq("seeker_id", user.id)
+      .eq("guide_id", guide.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data?.id) {
+      navigate({ to: "/messages/$bookingId", params: { bookingId: data.id } });
+    } else {
+      toast.info("Book this guide first to start a conversation.");
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -103,7 +122,7 @@ export default function GuidePublicProfile({ id }: { id: string }) {
                 <Button onClick={() => setBookingOpen(true)}>
                   <Calendar className="h-4 w-4 me-2" /> Book This Guide
                 </Button>
-                <Button variant="ghost">
+                <Button variant="ghost" onClick={handleMessage}>
                   <MessageCircle className="h-4 w-4 me-2" /> Message
                 </Button>
               </>

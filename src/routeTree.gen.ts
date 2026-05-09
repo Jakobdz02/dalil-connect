@@ -18,6 +18,7 @@ import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as MessagesBookingIdRouteImport } from './routes/messages.$bookingId'
 import { Route as GuidesIdRouteImport } from './routes/guides.$id'
 import { Route as GuideProfileRouteImport } from './routes/guide.profile'
 import { Route as GuideMessagesRouteImport } from './routes/guide.messages'
@@ -71,6 +72,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesBookingIdRoute = MessagesBookingIdRouteImport.update({
+  id: '/$bookingId',
+  path: '/$bookingId',
+  getParentRoute: () => MessagesRoute,
+} as any)
 const GuidesIdRoute = GuidesIdRouteImport.update({
   id: '/guides/$id',
   path: '/guides/$id',
@@ -112,7 +118,7 @@ export interface FileRoutesByFullPath {
   '/bookings': typeof BookingsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
-  '/messages': typeof MessagesRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/admin/guides': typeof AdminGuidesRoute
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/guide/messages': typeof GuideMessagesRoute
   '/guide/profile': typeof GuideProfileRoute
   '/guides/$id': typeof GuidesIdRoute
+  '/messages/$bookingId': typeof MessagesBookingIdRoute
   '/admin/': typeof AdminIndexRoute
   '/guides/': typeof GuidesIndexRoute
 }
@@ -130,7 +137,7 @@ export interface FileRoutesByTo {
   '/bookings': typeof BookingsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
-  '/messages': typeof MessagesRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/admin/guides': typeof AdminGuidesRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/guide/messages': typeof GuideMessagesRoute
   '/guide/profile': typeof GuideProfileRoute
   '/guides/$id': typeof GuidesIdRoute
+  '/messages/$bookingId': typeof MessagesBookingIdRoute
   '/admin': typeof AdminIndexRoute
   '/guides': typeof GuidesIndexRoute
 }
@@ -149,7 +157,7 @@ export interface FileRoutesById {
   '/bookings': typeof BookingsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
-  '/messages': typeof MessagesRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/admin/guides': typeof AdminGuidesRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/guide/messages': typeof GuideMessagesRoute
   '/guide/profile': typeof GuideProfileRoute
   '/guides/$id': typeof GuidesIdRoute
+  '/messages/$bookingId': typeof MessagesBookingIdRoute
   '/admin/': typeof AdminIndexRoute
   '/guides/': typeof GuidesIndexRoute
 }
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/guide/messages'
     | '/guide/profile'
     | '/guides/$id'
+    | '/messages/$bookingId'
     | '/admin/'
     | '/guides/'
   fileRoutesByTo: FileRoutesByTo
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/guide/messages'
     | '/guide/profile'
     | '/guides/$id'
+    | '/messages/$bookingId'
     | '/admin'
     | '/guides'
   id:
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/guide/messages'
     | '/guide/profile'
     | '/guides/$id'
+    | '/messages/$bookingId'
     | '/admin/'
     | '/guides/'
   fileRoutesById: FileRoutesById
@@ -224,7 +236,7 @@ export interface RootRouteChildren {
   BookingsRoute: typeof BookingsRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
-  MessagesRoute: typeof MessagesRoute
+  MessagesRoute: typeof MessagesRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
   AdminGuidesRoute: typeof AdminGuidesRoute
@@ -303,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages/$bookingId': {
+      id: '/messages/$bookingId'
+      path: '/$bookingId'
+      fullPath: '/messages/$bookingId'
+      preLoaderRoute: typeof MessagesBookingIdRouteImport
+      parentRoute: typeof MessagesRoute
+    }
     '/guides/$id': {
       id: '/guides/$id'
       path: '/guides/$id'
@@ -355,12 +374,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface MessagesRouteChildren {
+  MessagesBookingIdRoute: typeof MessagesBookingIdRoute
+}
+
+const MessagesRouteChildren: MessagesRouteChildren = {
+  MessagesBookingIdRoute: MessagesBookingIdRoute,
+}
+
+const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
+  MessagesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookingsRoute: BookingsRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
-  MessagesRoute: MessagesRoute,
+  MessagesRoute: MessagesRouteWithChildren,
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
   AdminGuidesRoute: AdminGuidesRoute,
