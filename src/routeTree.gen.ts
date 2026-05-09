@@ -15,6 +15,7 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BookingsRouteImport } from './routes/bookings'
+import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -55,6 +56,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const BookingsRoute = BookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin-login',
+  path: '/admin-login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -115,6 +121,7 @@ const AdminGuidesRoute = AdminGuidesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin-login': typeof AdminLoginRoute
   '/bookings': typeof BookingsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin-login': typeof AdminLoginRoute
   '/bookings': typeof BookingsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -154,6 +162,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin-login': typeof AdminLoginRoute
   '/bookings': typeof BookingsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin-login'
     | '/bookings'
     | '/dashboard'
     | '/login'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin-login'
     | '/bookings'
     | '/dashboard'
     | '/login'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin-login'
     | '/bookings'
     | '/dashboard'
     | '/login'
@@ -233,6 +245,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   BookingsRoute: typeof BookingsRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/bookings'
       fullPath: '/bookings'
       preLoaderRoute: typeof BookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-login': {
+      id: '/admin-login'
+      path: '/admin-login'
+      fullPath: '/admin-login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -388,6 +408,7 @@ const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminLoginRoute: AdminLoginRoute,
   BookingsRoute: BookingsRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
