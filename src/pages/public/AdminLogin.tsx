@@ -41,8 +41,11 @@ export default function AdminLogin() {
       }
     }
 
+    const lookup = USERNAME_TO_EMAIL[username.trim().toLowerCase()];
+    const emailToUse = lookup ?? username.trim();
+
     const { data: signIn, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: emailToUse,
       password,
     });
 
