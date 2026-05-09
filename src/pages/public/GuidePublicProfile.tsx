@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { MapPin, MessageCircle, Calendar } from "lucide-react";
+import { MapPin, MessageCircle, Calendar, UserX } from "lucide-react";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Avatar } from "@/components/shared/Avatar";
 import { Badge } from "@/components/shared/Badge";
@@ -39,6 +39,7 @@ export default function GuidePublicProfile({ id }: { id: string }) {
       <PageWrapper showFooter>
         <div className="py-16">
           <EmptyState
+            icon={UserX}
             title="Guide not found"
             description="This guide profile doesn't exist or has been removed."
           />
