@@ -1,9 +1,4 @@
-import { PageWrapper } from "@/components/layout/PageWrapper";
-
+import MessageList from "@/pages/messaging/MessageList";
 export default function GuideMessages() {
-  return (
-    <PageWrapper>
-      <h1 className="font-display text-4xl text-primary py-10">Guide messages</h1>
-    </PageWrapper>
-  );
+  return <MessageList viewerRole="guide" />;
 }
