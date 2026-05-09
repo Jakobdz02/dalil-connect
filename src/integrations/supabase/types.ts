@@ -78,6 +78,7 @@ export type Database = {
           photo_url: string | null
           price_per_day: number | null
           rejection_reason: string | null
+          subcategory: string | null
           updated_at: string
           user_id: string
         }
@@ -96,6 +97,7 @@ export type Database = {
           photo_url?: string | null
           price_per_day?: number | null
           rejection_reason?: string | null
+          subcategory?: string | null
           updated_at?: string
           user_id: string
         }
@@ -114,6 +116,7 @@ export type Database = {
           photo_url?: string | null
           price_per_day?: number | null
           rejection_reason?: string | null
+          subcategory?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -185,8 +188,10 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age_verified: boolean
           avatar_url: string | null
           created_at: string
+          date_of_birth: string | null
           email: string
           id: string
           language_preference: string | null
@@ -195,8 +200,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          age_verified?: boolean
           avatar_url?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email: string
           id: string
           language_preference?: string | null
@@ -205,8 +212,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          age_verified?: boolean
           avatar_url?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string
           id?: string
           language_preference?: string | null
