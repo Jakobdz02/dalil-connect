@@ -100,7 +100,7 @@ export default function GuidePublicProfile({ id }: { id: string }) {
           <div className="mt-6 flex flex-wrap gap-3">
             {isSeeker ? (
               <>
-                <Button>
+                <Button onClick={() => setBookingOpen(true)}>
                   <Calendar className="h-4 w-4 me-2" /> Book This Guide
                 </Button>
                 <Button variant="ghost">
@@ -115,6 +115,12 @@ export default function GuidePublicProfile({ id }: { id: string }) {
           </div>
         </div>
       </div>
+      <BookingModal
+        open={bookingOpen}
+        onOpenChange={setBookingOpen}
+        guideId={guide.id}
+        guideName={guide.full_name}
+      />
     </PageWrapper>
   );
 }
