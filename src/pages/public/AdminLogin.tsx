@@ -91,14 +91,14 @@ export default function AdminLogin() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                autoComplete="email"
+                id="username"
+                type="text"
+                autoComplete="username"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
