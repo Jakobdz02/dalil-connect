@@ -45,13 +45,21 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/60">© 2024 DALIL. All rights reserved.</p>
-          <div className="inline-flex items-center rounded-full border border-white/20 text-xs overflow-hidden">
-            <button className="px-3 py-1.5 bg-white/10 text-white" type="button">
-              EN
-            </button>
-            <button className="px-3 py-1.5 text-white/70 hover:text-white" type="button">
-              عربي
-            </button>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/admin-login"
+              className="text-xs text-white/50 hover:text-white transition-colors"
+            >
+              Admin
+            </Link>
+            <div className="inline-flex items-center rounded-full border border-white/20 text-xs overflow-hidden">
+              <button className="px-3 py-1.5 bg-white/10 text-white" type="button">
+                EN
+              </button>
+              <button className="px-3 py-1.5 text-white/70 hover:text-white" type="button">
+                عربي
+              </button>
+            </div>
           </div>
         </div>
       </div>

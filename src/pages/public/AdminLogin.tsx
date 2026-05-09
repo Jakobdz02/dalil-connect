@@ -13,8 +13,12 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const { getToken } = useRecaptcha();
   const verifyFn = useServerFn(verifyRecaptcha);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const USERNAME_TO_EMAIL: Record<string, string> = {
+    "dalil admin": "dalil.admin@dalil.app",
+  };
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -37,8 +41,11 @@ export default function AdminLogin() {
       }
     }
 
+    const lookup = USERNAME_TO_EMAIL[username.trim().toLowerCase()];
+    const emailToUse = lookup ?? username.trim();
+
     const { data: signIn, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: emailToUse,
       password,
     });
 
@@ -84,14 +91,14 @@ export default function AdminLogin() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                autoComplete="email"
+                id="username"
+                type="text"
+                autoComplete="username"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
