@@ -13,8 +13,12 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const { getToken } = useRecaptcha();
   const verifyFn = useServerFn(verifyRecaptcha);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const USERNAME_TO_EMAIL: Record<string, string> = {
+    "dalil admin": "dalil.admin@dalil.app",
+  };
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
