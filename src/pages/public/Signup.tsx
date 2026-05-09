@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Compass, User, MapPin } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +18,7 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) navigate({ to: HOME_FOR_ROLE[role] });
@@ -26,6 +26,7 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
     setSubmitting(true);
     const { error } = await supabase.auth.signUp({
       email,
@@ -37,10 +38,10 @@ export default function Signup() {
     });
     setSubmitting(false);
     if (error) {
-      toast.error(error.message);
+      setErrorMsg(error.message);
       return;
     }
-    toast.success("Account created — check your email to confirm.");
+    // Auto-confirm enabled — onAuthStateChange will trigger redirect via useEffect
   };
 
   return (
@@ -112,6 +113,9 @@ export default function Signup() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {errorMsg && (
+              <p className="text-sm text-destructive" role="alert">{errorMsg}</p>
+            )}
             <Button
               type="submit"
               className="w-full h-11 rounded-full"
