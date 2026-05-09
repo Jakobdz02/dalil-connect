@@ -85,6 +85,9 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {errorMsg && (
+              <p className="text-sm text-destructive" role="alert">{errorMsg}</p>
+            )}
             <Button
               type="submit"
               className="w-full h-11 rounded-full"
