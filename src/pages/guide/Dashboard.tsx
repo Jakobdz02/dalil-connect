@@ -14,6 +14,7 @@ export default function GuideDashboard() {
   const { profile } = useProfile();
   const [guide, setGuide] = useState<GuideProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [counts, setCounts] = useState({ total: 0, pending: 0, confirmed: 0 });
 
   useEffect(() => {
     if (!user) return;
@@ -23,7 +24,20 @@ export default function GuideDashboard() {
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
-      setGuide((data as GuideProfile) ?? null);
+      const g = (data as GuideProfile) ?? null;
+      setGuide(g);
+      if (g) {
+        const { data: bookings } = await supabase
+          .from("bookings")
+          .select("status")
+          .eq("guide_id", g.id);
+        const list = bookings ?? [];
+        setCounts({
+          total: list.length,
+          pending: list.filter((b) => b.status === "pending").length,
+          confirmed: list.filter((b) => b.status === "confirmed").length,
+        });
+      }
       setLoading(false);
     })();
   }, [user]);
@@ -69,9 +83,9 @@ export default function GuideDashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Stat label="Bookings received" value={0} />
-          <Stat label="Pending requests" value={0} />
-          <Stat label="Messages" value={0} />
+          <Stat label="Bookings received" value={counts.total} />
+          <Stat label="Pending requests" value={counts.pending} />
+          <Stat label="Confirmed bookings" value={counts.confirmed} />
         </div>
 
         {/* Quick links */}
