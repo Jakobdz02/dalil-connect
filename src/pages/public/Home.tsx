@@ -1,9 +1,26 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { MapPin, ShieldCheck, Star, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageWrapper } from "@/components/layout/PageWrapper";
+import { GuideCard, type GuideCardData } from "@/components/GuideCard";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Home() {
+  const [featured, setFeatured] = useState<GuideCardData[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("guide_profiles")
+        .select("id, full_name, city, languages, category, description, price_per_day, photo_url")
+        .eq("is_approved", true)
+        .order("created_at", { ascending: false })
+        .limit(3);
+      setFeatured((data ?? []) as GuideCardData[]);
+    })();
+  }, []);
+
   return (
     <PageWrapper showFooter fullWidth>
       {/* Hero */}
@@ -83,6 +100,24 @@ export default function Home() {
           </div>
         ))}
       </section>
+
+      {/* Featured Guides */}
+      {featured.length > 0 && (
+        <section className="container mx-auto px-4 pb-24">
+          <div className="text-center mb-10">
+            <h2 className="font-display text-3xl sm:text-4xl text-primary">Featured Guides</h2>
+            <p className="text-muted-foreground mt-2">Meet some of our newest verified locals.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            {featured.map((g) => <GuideCard key={g.id} guide={g} />)}
+          </div>
+          <div className="text-center mt-10">
+            <Button asChild size="lg" className="rounded-full px-7 h-12">
+              <Link to="/guides">Browse all guides</Link>
+            </Button>
+          </div>
+        </section>
+      )}
     </PageWrapper>
   );
 }
