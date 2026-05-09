@@ -3,16 +3,19 @@ import { MapPin } from "lucide-react";
 import { Avatar } from "@/components/shared/Avatar";
 import { Badge } from "@/components/shared/Badge";
 import { Button } from "@/components/shared/Button";
+import { getLanguageFlag, getLanguageName } from "@/lib/algeriaData";
+import { GUIDE_CATEGORY_LABELS, normalizeCategory } from "@/lib/guideCategories";
 import type { GuideProfile } from "@/types";
 
 export type GuideCardData = Pick<
   GuideProfile,
-  "id" | "full_name" | "city" | "languages" | "category" | "description" | "price_per_day" | "photo_url"
+  "id" | "full_name" | "city" | "languages" | "category" | "subcategory" | "description" | "price_per_day" | "photo_url"
 >;
 
 export function GuideCard({ guide }: { guide: GuideCardData }) {
   const visibleLangs = guide.languages.slice(0, 3);
   const extra = guide.languages.length - visibleLangs.length;
+  const categoryLabel = GUIDE_CATEGORY_LABELS[normalizeCategory(guide.category)];
 
   return (
     <Link
@@ -31,12 +34,19 @@ export function GuideCard({ guide }: { guide: GuideCardData }) {
             <span className="truncate">{guide.city}</span>
           </div>
           <div className="flex flex-wrap gap-1.5 mt-2">
-            <Badge variant="approved">{guide.category}</Badge>
+            <Badge variant="approved">{categoryLabel}</Badge>
             {visibleLangs.map((l) => (
-              <Badge key={l} variant="default">{l}</Badge>
+              <Badge key={l} variant="default">
+                <span className="me-1">{getLanguageFlag(l)}</span>{getLanguageName(l).split(" — ")[0]}
+              </Badge>
             ))}
             {extra > 0 && <Badge variant="default">+{extra} more</Badge>}
           </div>
+          {guide.subcategory && (
+            <p className="text-xs text-muted-foreground mt-1.5 truncate">
+              {guide.subcategory}
+            </p>
+          )}
         </div>
       </div>
 

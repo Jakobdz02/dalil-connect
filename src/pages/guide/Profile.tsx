@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
@@ -14,10 +14,15 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Avatar } from "@/components/shared/Avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { WILAYAS, LANGUAGES } from "@/lib/algeriaData";
+import {
+  GUIDE_CATEGORIES,
+  GUIDE_CATEGORY_LABELS,
+  GUIDE_SUBCATEGORIES,
+  normalizeCategory,
+  type GuideCategory,
+} from "@/lib/guideCategories";
 import type { GuideProfile } from "@/types";
-
-const LANGS = ["Arabic", "French", "English", "Other"];
-const CATEGORIES = ["Student Guide", "Tourist Guide", "Investor Guide", "General"];
 
 export default function GuideProfilePage() {
   const { user } = useAuth();
@@ -33,11 +38,14 @@ export default function GuideProfilePage() {
   const [fullName, setFullName] = useState("");
   const [city, setCity] = useState("");
   const [languages, setLanguages] = useState<string[]>([]);
-  const [category, setCategory] = useState<string>("General");
+  const [category, setCategory] = useState<GuideCategory>("general");
+  const [subcategory, setSubcategory] = useState<string>("");
   const [description, setDescription] = useState("");
   const [pricePerDay, setPricePerDay] = useState<string>("");
   const [availability, setAvailability] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  const subOptions = useMemo(() => GUIDE_SUBCATEGORIES[category], [category]);
 
   useEffect(() => {
     if (!user) return;
@@ -53,7 +61,8 @@ export default function GuideProfilePage() {
         setFullName(g.full_name);
         setCity(g.city);
         setLanguages(g.languages ?? []);
-        setCategory(g.category);
+        setCategory(normalizeCategory(g.category));
+        setSubcategory(g.subcategory ?? "");
         setDescription(g.description ?? "");
         setPricePerDay(g.price_per_day != null ? String(g.price_per_day) : "");
         setAvailability(g.availability ?? "");
@@ -63,8 +72,15 @@ export default function GuideProfilePage() {
     })();
   }, [user]);
 
-  const toggleLang = (l: string) =>
-    setLanguages((cur) => (cur.includes(l) ? cur.filter((x) => x !== l) : [...cur, l]));
+  const toggleLang = (code: string) =>
+    setLanguages((cur) =>
+      cur.includes(code) ? cur.filter((x) => x !== code) : [...cur, code],
+    );
+
+  const handleCategoryChange = (next: GuideCategory) => {
+    setCategory(next);
+    setSubcategory("");
+  };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -89,8 +105,16 @@ export default function GuideProfilePage() {
     e.preventDefault();
     if (!user) return;
     setErrorMsg(null);
+    if (!city) {
+      setErrorMsg("Please select your wilaya.");
+      return;
+    }
     if (languages.length === 0) {
-      setErrorMsg("Please select at least one language.");
+      setErrorMsg("Please select at least one language you speak.");
+      return;
+    }
+    if (subOptions.length > 0 && !subcategory) {
+      setErrorMsg("Please select your specialization.");
       return;
     }
     setSubmitting(true);
@@ -100,6 +124,7 @@ export default function GuideProfilePage() {
       city,
       languages,
       category,
+      subcategory: subOptions.length > 0 ? subcategory : null,
       description: description || null,
       price_per_day: pricePerDay ? Number(pricePerDay) : null,
       availability: availability || null,
@@ -162,27 +187,34 @@ export default function GuideProfilePage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="city">City</Label>
-            <Input id="city" required value={city} onChange={(e) => setCity(e.target.value)} />
+            <Label>Wilaya</Label>
+            <Select value={city} onValueChange={setCity}>
+              <SelectTrigger><SelectValue placeholder="-- Select your Wilaya --" /></SelectTrigger>
+              <SelectContent className="max-h-72">
+                {WILAYAS.map((w) => (
+                  <SelectItem key={w} value={w}>{w}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">
             <Label>Languages spoken</Label>
             <div className="flex flex-wrap gap-2">
-              {LANGS.map((l) => {
-                const active = languages.includes(l);
+              {LANGUAGES.map((lang) => {
+                const active = languages.includes(lang.code);
                 return (
                   <button
-                    key={l}
+                    key={lang.code}
                     type="button"
-                    onClick={() => toggleLang(l)}
+                    onClick={() => toggleLang(lang.code)}
                     className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                       active
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-card text-foreground border-border hover:border-primary/40"
                     }`}
                   >
-                    {l}
+                    <span className="me-1">{lang.flag}</span>{lang.name}
                   </button>
                 );
               })}
@@ -191,15 +223,29 @@ export default function GuideProfilePage() {
 
           <div className="space-y-1.5">
             <Label>Category</Label>
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category} onValueChange={(v) => handleCategoryChange(v as GuideCategory)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                {GUIDE_CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>{GUIDE_CATEGORY_LABELS[c]}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+
+          {subOptions.length > 0 && (
+            <div className="space-y-1.5">
+              <Label>Specialization</Label>
+              <Select value={subcategory} onValueChange={setSubcategory}>
+                <SelectTrigger><SelectValue placeholder="-- Select your specialization --" /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {subOptions.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label htmlFor="description">Description</Label>
