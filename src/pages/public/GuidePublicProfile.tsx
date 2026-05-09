@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { supabase } from "@/integrations/supabase/client";
+import { BookingModal } from "@/components/BookingModal";
 import type { GuideProfile } from "@/types";
 
 export default function GuidePublicProfile({ id }: { id: string }) {
@@ -17,6 +18,7 @@ export default function GuidePublicProfile({ id }: { id: string }) {
   const { role } = useRole();
   const [guide, setGuide] = useState<GuideProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
