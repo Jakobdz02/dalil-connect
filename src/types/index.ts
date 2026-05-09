@@ -8,6 +8,8 @@ export interface Profile {
   email: string;
   role: UserRole;
   language_preference: string | null;
+  date_of_birth: string | null;
+  age_verified: boolean;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
