@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { verifyRecaptcha } from "@/lib/recaptcha.functions";
 import { HOME_FOR_ROLE } from "@/lib/auth-redirect";
 import type { UserRole } from "@/types";
 
@@ -13,6 +16,8 @@ export default function Login() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const search = useSearch({ from: "/login" }) as { redirect?: string };
+  const { getToken } = useRecaptcha();
+  const verifyFn = useServerFn(verifyRecaptcha);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -36,6 +41,21 @@ export default function Login() {
     e.preventDefault();
     setErrorMsg(null);
     setSubmitting(true);
+
+    const token = await getToken("login");
+    if (token) {
+      try {
+        const result = await verifyFn({ data: { token, action: "login" } });
+        if (!result.passed) {
+          setErrorMsg("Security check failed. Please try again.");
+          setSubmitting(false);
+          return;
+        }
+      } catch (err) {
+        console.warn("[login] recaptcha verify failed — continuing", err);
+      }
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setSubmitting(false);
     if (error) {

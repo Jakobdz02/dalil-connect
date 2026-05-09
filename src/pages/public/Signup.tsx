@@ -1,11 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Compass, User, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { useAgeVerification } from "@/hooks/useAgeVerification";
+import { verifyRecaptcha } from "@/lib/recaptcha.functions";
 import { HOME_FOR_ROLE } from "@/lib/auth-redirect";
 
 type SignupRole = "seeker" | "guide";
@@ -13,12 +17,25 @@ type SignupRole = "seeker" | "guide";
 export default function Signup() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { getToken } = useRecaptcha();
+  const { isAgeValid, minAge, isFutureDate } = useAgeVerification();
+  const verifyFn = useServerFn(verifyRecaptcha);
+
   const [role, setRole] = useState<SignupRole>("seeker");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [dob, setDob] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const dobRef = useRef<HTMLInputElement>(null);
+
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const minDob = useMemo(() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 100);
+    return d.toISOString().slice(0, 10);
+  }, []);
 
   useEffect(() => {
     if (user) navigate({ to: HOME_FOR_ROLE[role] });
@@ -27,13 +44,49 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+
+    // Age checks
+    if (!dob) {
+      setErrorMsg("Please enter your date of birth.");
+      dobRef.current?.focus();
+      return;
+    }
+    if (isFutureDate(dob)) {
+      setErrorMsg("Date of birth cannot be in the future.");
+      dobRef.current?.focus();
+      return;
+    }
+    if (!isAgeValid(dob, role)) {
+      setErrorMsg(
+        `You must be at least ${minAge(role)} years old to register as a ${role}.`,
+      );
+      dobRef.current?.focus();
+      return;
+    }
+
     setSubmitting(true);
+
+    // reCAPTCHA v3 — fail open on infra errors, block on low score
+    const token = await getToken("signup");
+    if (token) {
+      try {
+        const result = await verifyFn({ data: { token, action: "signup" } });
+        if (!result.passed) {
+          setErrorMsg("Our system detected unusual activity. Please try again later.");
+          setSubmitting(false);
+          return;
+        }
+      } catch (err) {
+        console.warn("[signup] recaptcha verify failed — continuing", err);
+      }
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
-        data: { name, role },
+        data: { name, role, date_of_birth: dob },
       },
     });
     setSubmitting(false);
@@ -41,7 +94,6 @@ export default function Signup() {
       setErrorMsg(error.message);
       return;
     }
-    // Auto-confirm enabled — onAuthStateChange will trigger redirect via useEffect
   };
 
   return (
@@ -62,7 +114,6 @@ export default function Signup() {
             Discover Algeria, or share it with the world.
           </p>
 
-          {/* Role picker */}
           <div className="grid grid-cols-2 gap-2 mt-6">
             <RoleCard
               active={role === "seeker"}
@@ -102,6 +153,19 @@ export default function Signup() {
               />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="dob">Date of birth</Label>
+              <Input
+                id="dob"
+                ref={dobRef}
+                type="date"
+                required
+                min={minDob}
+                max={today}
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
@@ -123,6 +187,12 @@ export default function Signup() {
             >
               {submitting ? "Creating account…" : "Create account"}
             </Button>
+            <p className="text-[11px] text-muted-foreground text-center">
+              This site is protected by reCAPTCHA and the Google{" "}
+              <a href="https://policies.google.com/privacy" className="underline" target="_blank" rel="noreferrer">Privacy Policy</a>{" "}
+              and{" "}
+              <a href="https://policies.google.com/terms" className="underline" target="_blank" rel="noreferrer">Terms of Service</a> apply.
+            </p>
           </form>
 
           <p className="text-sm text-muted-foreground text-center mt-6">

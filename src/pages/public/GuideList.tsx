@@ -9,10 +9,15 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { GuideCard, type GuideCardData } from "@/components/GuideCard";
 import { supabase } from "@/integrations/supabase/client";
+import { WILAYAS, LANGUAGES } from "@/lib/algeriaData";
+import {
+  GUIDE_CATEGORIES,
+  GUIDE_CATEGORY_LABELS,
+  normalizeCategory,
+  type GuideCategory,
+} from "@/lib/guideCategories";
 
 const ALL = "__all__";
-const LANGUAGES = ["Arabic", "French", "English"];
-const CATEGORIES = ["Student Guide", "Tourist Guide", "Investor Guide", "General"];
 
 export default function GuideList() {
   const [guides, setGuides] = useState<GuideCardData[]>([]);
@@ -23,12 +28,13 @@ export default function GuideList() {
   const [city, setCity] = useState<string>(ALL);
   const [language, setLanguage] = useState<string>(ALL);
   const [category, setCategory] = useState<string>(ALL);
+  const [subcategory, setSubcategory] = useState<string>(ALL);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("guide_profiles")
-        .select("id, full_name, city, languages, category, description, price_per_day, photo_url")
+        .select("id, full_name, city, languages, category, subcategory, description, price_per_day, photo_url")
         .eq("is_approved", true)
         .order("created_at", { ascending: false });
       setGuides((data ?? []) as GuideCardData[]);
@@ -36,16 +42,27 @@ export default function GuideList() {
     })();
   }, []);
 
+  // Reset subcategory when category changes
+  useEffect(() => {
+    setSubcategory(ALL);
+  }, [category]);
+
   // Debounce search
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput.trim().toLowerCase()), 300);
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const cities = useMemo(
-    () => Array.from(new Set(guides.map((g) => g.city))).sort(),
-    [guides],
-  );
+  const availableSubcategories = useMemo(() => {
+    if (category === ALL) return [];
+    return Array.from(
+      new Set(
+        guides
+          .filter((g) => normalizeCategory(g.category) === category && g.subcategory)
+          .map((g) => g.subcategory as string),
+      ),
+    ).sort();
+  }, [guides, category]);
 
   const filtered = useMemo(() => {
     return guides.filter((g) => {
@@ -55,19 +72,21 @@ export default function GuideList() {
       }
       if (city !== ALL && g.city !== city) return false;
       if (language !== ALL && !g.languages.includes(language)) return false;
-      if (category !== ALL && g.category !== category) return false;
+      if (category !== ALL && normalizeCategory(g.category) !== category) return false;
+      if (subcategory !== ALL && g.subcategory !== subcategory) return false;
       return true;
     });
-  }, [guides, search, city, language, category]);
+  }, [guides, search, city, language, category, subcategory]);
 
   const hasFilters =
-    searchInput || city !== ALL || language !== ALL || category !== ALL;
+    searchInput || city !== ALL || language !== ALL || category !== ALL || subcategory !== ALL;
 
   const clearFilters = () => {
     setSearchInput("");
     setCity(ALL);
     setLanguage(ALL);
     setCategory(ALL);
+    setSubcategory(ALL);
   };
 
   return (
@@ -88,7 +107,7 @@ export default function GuideList() {
           <Input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search by name or city"
+            placeholder="Search by name or wilaya"
             className="ps-9 pe-9 h-11 rounded-full"
           />
           {searchInput && (
@@ -105,9 +124,50 @@ export default function GuideList() {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3 justify-center items-center">
-          <FilterSelect value={city} onChange={setCity} placeholder="All Cities" options={cities} />
-          <FilterSelect value={language} onChange={setLanguage} placeholder="All Languages" options={LANGUAGES} />
-          <FilterSelect value={category} onChange={setCategory} placeholder="All Categories" options={CATEGORIES} />
+          <Select value={city} onValueChange={setCity}>
+            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Wilayas" /></SelectTrigger>
+            <SelectContent className="max-h-72">
+              <SelectItem value={ALL}>All Wilayas</SelectItem>
+              {WILAYAS.map((w) => (
+                <SelectItem key={w} value={w}>{w}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={language} onValueChange={setLanguage}>
+            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Languages" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All Languages</SelectItem>
+              {LANGUAGES.map((l) => (
+                <SelectItem key={l.code} value={l.code}>
+                  {l.flag} {l.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Categories" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All Categories</SelectItem>
+              {GUIDE_CATEGORIES.map((c) => (
+                <SelectItem key={c} value={c}>{GUIDE_CATEGORY_LABELS[c as GuideCategory]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {category !== ALL && availableSubcategories.length > 0 && (
+            <Select value={subcategory} onValueChange={setSubcategory}>
+              <SelectTrigger className="w-[220px]"><SelectValue placeholder="All Specializations" /></SelectTrigger>
+              <SelectContent className="max-h-72">
+                <SelectItem value={ALL}>All Specializations</SelectItem>
+                {availableSubcategories.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           {hasFilters && (
             <button
               type="button"
@@ -145,26 +205,5 @@ export default function GuideList() {
         )}
       </div>
     </PageWrapper>
-  );
-}
-
-function FilterSelect({
-  value, onChange, placeholder, options,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder: string;
-  options: string[];
-}) {
-  return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[170px]"><SelectValue placeholder={placeholder} /></SelectTrigger>
-      <SelectContent>
-        <SelectItem value={ALL}>{placeholder}</SelectItem>
-        {options.map((o) => (
-          <SelectItem key={o} value={o}>{o}</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
   );
 }

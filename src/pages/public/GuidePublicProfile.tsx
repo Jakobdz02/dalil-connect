@@ -12,6 +12,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingModal } from "@/components/BookingModal";
+import { getLanguageFlag, getLanguageName } from "@/lib/algeriaData";
+import { GUIDE_CATEGORY_LABELS, normalizeCategory } from "@/lib/guideCategories";
 import type { GuideProfile } from "@/types";
 
 export default function GuidePublicProfile({ id }: { id: string }) {
@@ -90,11 +92,18 @@ export default function GuidePublicProfile({ id }: { id: string }) {
                 {guide.city}
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
-                <Badge variant="approved">{guide.category}</Badge>
+                <Badge variant="approved">{GUIDE_CATEGORY_LABELS[normalizeCategory(guide.category)]}</Badge>
                 {guide.languages.map((l) => (
-                  <Badge key={l} variant="default">{l}</Badge>
+                  <Badge key={l} variant="default">
+                    <span className="me-1">{getLanguageFlag(l)}</span>{getLanguageName(l)}
+                  </Badge>
                 ))}
               </div>
+              {guide.subcategory && (
+                <p className="text-sm text-muted-foreground mt-3">
+                  <span className="font-medium text-foreground">Specialization:</span> {guide.subcategory}
+                </p>
+              )}
             </div>
           </div>
 
