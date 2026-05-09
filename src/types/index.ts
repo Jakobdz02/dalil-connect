@@ -20,6 +20,7 @@ export interface GuideProfile {
   city: string;
   languages: string[];
   category: string;
+  subcategory: string | null;
   description: string | null;
   price_per_day: number | null;
   availability: string | null;
