@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils";
 
-type Size = "sm" | "md" | "lg";
+type Size = "sm" | "md" | "lg" | "xl";
 
 const sizes: Record<Size, string> = {
   sm: "h-7 w-7 text-xs",
   md: "h-9 w-9 text-sm",
   lg: "h-12 w-12 text-base",
+  xl: "h-20 w-20 text-2xl",
 };
 
 export interface AvatarProps {
