@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { supabase } from "@/integrations/supabase/client";
+import { BookingModal } from "@/components/BookingModal";
 import type { GuideProfile } from "@/types";
 
 export default function GuidePublicProfile({ id }: { id: string }) {
@@ -17,6 +18,7 @@ export default function GuidePublicProfile({ id }: { id: string }) {
   const { role } = useRole();
   const [guide, setGuide] = useState<GuideProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -98,7 +100,7 @@ export default function GuidePublicProfile({ id }: { id: string }) {
           <div className="mt-6 flex flex-wrap gap-3">
             {isSeeker ? (
               <>
-                <Button>
+                <Button onClick={() => setBookingOpen(true)}>
                   <Calendar className="h-4 w-4 me-2" /> Book This Guide
                 </Button>
                 <Button variant="ghost">
@@ -113,6 +115,12 @@ export default function GuidePublicProfile({ id }: { id: string }) {
           </div>
         </div>
       </div>
+      <BookingModal
+        open={bookingOpen}
+        onOpenChange={setBookingOpen}
+        guideId={guide.id}
+        guideName={guide.full_name}
+      />
     </PageWrapper>
   );
 }

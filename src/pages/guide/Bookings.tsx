@@ -1,9 +1,127 @@
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { CalendarX } from "lucide-react";
 import { PageWrapper } from "@/components/layout/PageWrapper";
+import { Avatar } from "@/components/shared/Avatar";
+import { Badge } from "@/components/shared/Badge";
+import { Button } from "@/components/shared/Button";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import type { Booking, BookingStatus, Profile } from "@/types";
+
+type Row = Booking & {
+  seeker: Pick<Profile, "id" | "name" | "avatar_url"> | null;
+};
+
+const statusVariant: Record<BookingStatus, "pending" | "confirmed" | "completed" | "cancelled"> = {
+  pending: "pending",
+  confirmed: "confirmed",
+  completed: "completed",
+  cancelled: "cancelled",
+};
 
 export default function GuideBookings() {
+  const { user } = useAuth();
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    if (!user) return;
+    setLoading(true);
+    const { data: gp } = await supabase
+      .from("guide_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!gp) { setRows([]); setLoading(false); return; }
+
+    const { data: bookings } = await supabase
+      .from("bookings")
+      .select("*")
+      .eq("guide_id", gp.id)
+      .order("created_at", { ascending: false });
+    const list = (bookings ?? []) as Booking[];
+
+    const seekerIds = Array.from(new Set(list.map((b) => b.seeker_id)));
+    const map = new Map<string, Row["seeker"]>();
+    if (seekerIds.length) {
+      const { data: seekers } = await supabase
+        .from("profiles")
+        .select("id, name, avatar_url")
+        .in("id", seekerIds);
+      (seekers ?? []).forEach((s) => map.set(s.id, s as Row["seeker"]));
+    }
+    setRows(list.map((b) => ({ ...b, seeker: map.get(b.seeker_id) ?? null })));
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, [user]);
+
+  const update = async (id: string, status: BookingStatus) => {
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(`Booking ${status}`);
+    load();
+  };
+
   return (
     <PageWrapper>
-      <h1 className="font-display text-4xl text-primary py-10">Guide bookings</h1>
+      <div className="max-w-3xl mx-auto py-10">
+        <h1 className="font-display text-3xl text-primary mb-6">Booking Requests</h1>
+
+        {loading ? (
+          <LoadingSpinner fullPage />
+        ) : rows.length === 0 ? (
+          <EmptyState icon={CalendarX} title="No booking requests yet" />
+        ) : (
+          <div className="space-y-3">
+            {rows.map((b) => (
+              <div key={b.id} className="rounded-xl border bg-card p-4 shadow-card">
+                <div className="flex items-start gap-4">
+                  <Avatar src={b.seeker?.avatar_url ?? undefined} name={b.seeker?.name ?? "Seeker"} size="lg" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <span className="font-semibold text-foreground">
+                        {b.seeker?.name ?? "Seeker"}
+                      </span>
+                      <Badge variant={statusVariant[b.status]}>{b.status}</Badge>
+                    </div>
+                    <div className="text-sm text-foreground mt-1">
+                      <span className="text-muted-foreground">Date:</span>{" "}
+                      {new Date(b.date).toLocaleDateString()}
+                    </div>
+                    {b.notes && (
+                      <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line">
+                        {b.notes}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap justify-end gap-2 mt-3">
+                  {b.status === "pending" && (
+                    <>
+                      <Button size="sm" variant="ghost" onClick={() => update(b.id, "cancelled")}>
+                        Cancel
+                      </Button>
+                      <Button size="sm" onClick={() => update(b.id, "confirmed")}>
+                        Confirm
+                      </Button>
+                    </>
+                  )}
+                  {b.status === "confirmed" && (
+                    <Button size="sm" onClick={() => update(b.id, "completed")}>
+                      Mark Complete
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </PageWrapper>
   );
 }
