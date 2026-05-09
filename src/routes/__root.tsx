@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Dalil Dz" },
+      { name: "description", content: "Algeria Guide Connect is a marketplace linking international visitors with local Algerian guides." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Dalil Dz" },
+      { property: "og:description", content: "Algeria Guide Connect is a marketplace linking international visitors with local Algerian guides." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Dalil Dz" },
+      { name: "twitter:description", content: "Algeria Guide Connect is a marketplace linking international visitors with local Algerian guides." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/cCaxuGb2r4aeZixC4Ml17I4UYGt1/social-images/social-1778329831678-1000302788.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/cCaxuGb2r4aeZixC4Ml17I4UYGt1/social-images/social-1778329831678-1000302788.webp" },
     ],
     links: [
       {
