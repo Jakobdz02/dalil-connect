@@ -470,8 +470,7 @@ function CityDetailCard({ city, talkLabel }: { city: CityNode; talkLabel: string
             <Badge key={c} variant="default">
               {FILTER_LABELS[c]}
               </Badge>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 
