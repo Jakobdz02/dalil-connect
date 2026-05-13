@@ -57,9 +57,7 @@ export default function Signup() {
       return;
     }
     if (!isAgeValid(dob, role)) {
-      setErrorMsg(
-        `You must be at least ${minAge(role)} years old to register as a ${role}.`,
-      );
+      setErrorMsg(`You must be at least ${minAge(role)} years old to register as a ${role}.`);
       dobRef.current?.focus();
       return;
     }
@@ -132,12 +130,7 @@ export default function Signup() {
           <form onSubmit={handleSubmit} className="mt-5 space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="name">Full name</Label>
-              <Input
-                id="name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
@@ -176,20 +169,33 @@ export default function Signup() {
               />
             </div>
             {errorMsg && (
-              <p className="text-sm text-destructive" role="alert">{errorMsg}</p>
+              <p className="text-sm text-destructive" role="alert">
+                {errorMsg}
+              </p>
             )}
-            <Button
-              type="submit"
-              className="w-full h-11 rounded-full"
-              disabled={submitting}
-            >
+            <Button type="submit" className="w-full h-11 rounded-full" disabled={submitting}>
               {submitting ? "Creating account…" : "Create account"}
             </Button>
             <p className="text-[11px] text-muted-foreground text-center">
               This site is protected by reCAPTCHA and the Google{" "}
-              <a href="https://policies.google.com/privacy" className="underline" target="_blank" rel="noreferrer">Privacy Policy</a>{" "}
+              <a
+                href="https://policies.google.com/privacy"
+                className="underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Privacy Policy
+              </a>{" "}
               and{" "}
-              <a href="https://policies.google.com/terms" className="underline" target="_blank" rel="noreferrer">Terms of Service</a> apply.
+              <a
+                href="https://policies.google.com/terms"
+                className="underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Terms of Service
+              </a>{" "}
+              apply.
             </p>
           </form>
 
