@@ -39,9 +39,12 @@ export interface CityNode {
   name: string;
   nameAr: string;
   region: "north" | "center" | "south" | "east" | "west";
-  // SVG coordinates on a 1000x1000 stylized Algeria map (approximate)
+  // SVG coordinates on a 1000x1000 stylized Algeria map (approximate, legacy)
   x: number;
   y: number;
+  // Real-world coordinates used by the interactive Leaflet map
+  lat: number;
+  lng: number;
   highlights: string[];
   places: MapPlace[];
   guideIds: string[];
@@ -96,6 +99,7 @@ export const ALGERIA_CITIES: CityNode[] = [
     nameAr: "الجزائر",
     region: "north",
     x: 470, y: 180,
+    lat: 36.7538, lng: 3.0588,
     heroEmoji: "🏛️",
     highlights: ["Casbah (UNESCO)", "Notre Dame d'Afrique", "Bardo Museum", "Martyrs' Memorial"],
     places: [
@@ -120,6 +124,7 @@ export const ALGERIA_CITIES: CityNode[] = [
     nameAr: "وهران",
     region: "west",
     x: 280, y: 220,
+    lat: 35.6971, lng: -0.6308,
     heroEmoji: "🌊",
     highlights: ["Santa Cruz Fortress", "Place du 1er Novembre", "Corniche", "Raï music scene"],
     places: [
@@ -143,6 +148,7 @@ export const ALGERIA_CITIES: CityNode[] = [
     nameAr: "قسنطينة",
     region: "east",
     x: 600, y: 200,
+    lat: 36.365, lng: 6.6147,
     heroEmoji: "🌉",
     highlights: ["Sidi M'Cid Bridge", "Palace of Ahmed Bey", "Emir Abdelkader Mosque"],
     places: [
@@ -165,6 +171,7 @@ export const ALGERIA_CITIES: CityNode[] = [
     nameAr: "تمنراست",
     region: "south",
     x: 470, y: 720,
+    lat: 22.785, lng: 5.5228,
     heroEmoji: "🏜️",
     highlights: ["Hoggar Mountains", "Assekrem Plateau", "Tuareg culture"],
     places: [
@@ -187,6 +194,7 @@ export const ALGERIA_CITIES: CityNode[] = [
     nameAr: "عنابة",
     region: "east",
     x: 660, y: 160,
+    lat: 36.9, lng: 7.7667,
     heroEmoji: "🏖️",
     highlights: ["Hippo Regius ruins", "Basilica of St Augustine", "Seraïdi beaches"],
     places: [
@@ -209,6 +217,7 @@ export const ALGERIA_CITIES: CityNode[] = [
     nameAr: "تلمسان",
     region: "west",
     x: 220, y: 260,
+    lat: 34.8826, lng: -1.315,
     heroEmoji: "🕌",
     highlights: ["Great Mosque of Tlemcen", "El Mechouar Palace", "Lalla Setti plateau"],
     places: [
@@ -230,6 +239,7 @@ export const ALGERIA_CITIES: CityNode[] = [
     nameAr: "غرداية",
     region: "south",
     x: 460, y: 460,
+    lat: 32.49, lng: 3.67,
     heroEmoji: "🏘️",
     highlights: ["M'Zab Valley (UNESCO)", "Pentapolis old towns", "Mozabite craftsmanship"],
     places: [
@@ -251,6 +261,7 @@ export const ALGERIA_CITIES: CityNode[] = [
     nameAr: "بجاية",
     region: "north",
     x: 540, y: 200,
+    lat: 36.7515, lng: 5.0843,
     heroEmoji: "⛰️",
     highlights: ["Cap Carbon", "Yemma Gouraya National Park", "Aiguades beach"],
     places: [

@@ -131,3 +131,12 @@
     font-family: var(--font-arabic);
   }
 }
+
+/* Leaflet custom marker styling */
+.algeria-city-marker {
+  background: transparent !important;
+  border: none !important;
+}
+.leaflet-container {
+  font-family: var(--font-sans);
+}

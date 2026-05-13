@@ -105,49 +105,9 @@ const UI_STRINGS = {
 
 type Lang = keyof typeof UI_STRINGS;
 
-function CityMarker({
-  city,
-  active,
-  onClick,
-}: {
-  city: CityNode;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <g
-      onClick={onClick}
-      className="cursor-pointer transition-transform"
-      style={{ transformOrigin: `${city.x}px ${city.y}px` }}
-    >
-      <circle
-        cx={city.x}
-        cy={city.y}
-        r={active ? 26 : 18}
-        className={
-          active
-            ? "fill-primary/25 stroke-primary"
-            : "fill-primary/10 stroke-primary/60 hover:fill-primary/20"
-        }
-        strokeWidth={2}
-      />
-      <circle
-        cx={city.x}
-        cy={city.y}
-        r={6}
-        className={active ? "fill-primary" : "fill-primary/80"}
-      />
-      <text
-        x={city.x}
-        y={city.y - 28}
-        textAnchor="middle"
-        className="fill-foreground text-[18px] font-semibold pointer-events-none select-none"
-      >
-        {city.name}
-      </text>
-    </g>
-  );
-}
+import { lazy, Suspense } from "react";
+const AlgeriaLeafletMap = lazy(() => import("@/components/map/AlgeriaLeafletMap"));
+
 
 export default function AlgeriaMap() {
   const [lang, setLang] = useState<Lang>("en");
@@ -319,40 +279,14 @@ export default function AlgeriaMap() {
                   {visibleCities.length} / {ALGERIA_CITIES.length} cities
                 </span>
               </div>
-              <div className="aspect-[4/5] sm:aspect-[5/4] w-full rounded-2xl bg-gradient-to-br from-accent/5 via-primary/5 to-background overflow-hidden">
-                <svg viewBox="0 0 800 900" className="w-full h-full">
-                  {/* Stylized Algeria silhouette */}
-                  <path
-                    d="M180 160 L350 110 L520 130 L640 175 L700 250 L680 360 L720 460 L640 600 L580 760 L470 830 L360 800 L260 700 L200 560 L160 420 L150 280 Z"
-                    className="fill-primary/10 stroke-primary/40"
-                    strokeWidth="2"
-                    strokeLinejoin="round"
+              <div className="aspect-[4/5] sm:aspect-[5/4] w-full rounded-2xl overflow-hidden border border-border">
+                <Suspense fallback={<div className="w-full h-full grid place-items-center text-sm text-muted-foreground">Loading map…</div>}>
+                  <AlgeriaLeafletMap
+                    cities={visibleCities}
+                    selectedId={selectedCity?.id ?? ""}
+                    onSelect={(id) => setSelectedCityId(id)}
                   />
-                  {/* Mediterranean label */}
-                  <text x="400" y="80" textAnchor="middle" className="fill-muted-foreground text-[16px]">
-                    Mediterranean Sea
-                  </text>
-                  <text x="120" y="450" textAnchor="middle" className="fill-muted-foreground text-[14px]" transform="rotate(-90 120 450)">
-                    Atlantic
-                  </text>
-                  <text x="470" y="880" textAnchor="middle" className="fill-muted-foreground text-[14px]">
-                    Sahara
-                  </text>
-
-                  {/* City markers (filtered list visually de-emphasizes hidden ones) */}
-                  {ALGERIA_CITIES.map((c) => {
-                    const visible = visibleCities.some((v) => v.id === c.id);
-                    if (!visible) return null;
-                    return (
-                      <CityMarker
-                        key={c.id}
-                        city={c}
-                        active={selectedCity?.id === c.id}
-                        onClick={() => setSelectedCityId(c.id)}
-                      />
-                    );
-                  })}
-                </svg>
+                </Suspense>
               </div>
               <p className="text-xs text-muted-foreground mt-3">
                 Tap a city to see local guides, highlights, and travel tips.
