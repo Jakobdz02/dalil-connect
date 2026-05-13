@@ -251,7 +251,7 @@ export default function GuideOnboarding() {
   };
 
   // ---------- Document upload (private bucket) ----------
-  const uploadDoc = async (file: File, docType: DocType) => {
+  const uploadDoc = async (file: File, docType: DocType): Promise<void> => {
     if (!user) return;
     const gid = await ensureGuideRow();
     if (!gid) return;
@@ -261,7 +261,7 @@ export default function GuideOnboarding() {
     const { error: upErr } = await supabase.storage
       .from("guide-documents")
       .upload(path, file, { contentType: file.type, upsert: false });
-    if (upErr) return toast.error(upErr.message);
+    if (upErr) { toast.error(upErr.message); return; }
 
     const { data, error } = await supabase
       .from("guide_documents")
@@ -273,7 +273,7 @@ export default function GuideOnboarding() {
       })
       .select("*")
       .single();
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setDocs((cur) => [...cur, data as DocRow]);
     toast.success("Document uploaded");
   };
