@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, lazy, Suspense } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Search,
@@ -18,9 +18,6 @@ import {
   ShieldAlert,
   GraduationCap,
   Briefcase,
-  Utensils,
-  Moon,
-  CalendarDays,
   Compass,
   Globe2,
 } from "lucide-react";
@@ -32,121 +29,88 @@ import { Avatar } from "@/components/shared/Avatar";
 import { getLanguageFlag } from "@/lib/algeriaData";
 import {
   ALGERIA_CITIES,
-  FILTER_LABELS,
   LIVE_INSIGHTS,
-  SAMPLE_GUIDES,
+  MODE_CTA,
+  MODE_EMPTY,
+  MODE_FILTERS,
+  MODE_LABELS,
+  MODE_TAGLINES,
   getGuideById,
   type AudienceType,
   type CityNode,
-  type FilterCategory,
+  type MapPlace,
+  type ModeFilter,
 } from "@/lib/algeriaMapData";
 import { CITY_IMAGES } from "@/lib/cityImages";
 
-const FILTER_ICONS: Record<FilterCategory, React.ComponentType<{ className?: string }>> = {
-  tourism: Compass,
-  study: GraduationCap,
-  business: Briefcase,
-  safety: ShieldAlert,
-  food: Utensils,
-  transport: Bus,
-  nightlife: Moon,
-  events: CalendarDays,
+const MODE_ICONS: Record<AudienceType, React.ComponentType<{ className?: string }>> = {
+  tourist: Compass,
+  student: GraduationCap,
+  investor: Briefcase,
 };
 
-const AUDIENCE_LABELS: Record<AudienceType, string> = {
-  tourist: "Tourist",
-  student: "Student",
-  investor: "Investor",
-};
-
-const UI_STRINGS = {
-  en: {
-    eyebrow: "Algeria Live Guide Map",
-    title: "Discover Algeria, one verified local at a time",
-    subtitle: "Explore cities, hidden gems, study & business hubs — and book a verified local guide in one tap.",
-    searchPlaceholder: "Search city, attraction, university, district, or guide…",
-    filtersTitle: "What are you looking for?",
-    featuredFor: "Featured for",
-    talkToGuide: "Talk to a Local Guide",
-    viewCity: "Explore",
-    liveInsights: "Live insights from Algeria",
-    liveSub: "Updated daily so you always have a reason to come back.",
-    verifiedGuides: "Verified Guides",
-    chooseAudience: "I'm a…",
-  },
-  fr: {
-    eyebrow: "Carte Live des Guides — Algérie",
-    title: "Découvrez l'Algérie avec un local vérifié",
-    subtitle: "Explorez les villes, joyaux cachés, pôles d'études & d'affaires — et réservez un guide local en un clic.",
-    searchPlaceholder: "Rechercher ville, site, université, quartier ou guide…",
-    filtersTitle: "Que cherchez-vous ?",
-    featuredFor: "Sélection pour",
-    talkToGuide: "Parler à un guide local",
-    viewCity: "Explorer",
-    liveInsights: "Infos live d'Algérie",
-    liveSub: "Mises à jour chaque jour — une raison de revenir.",
-    verifiedGuides: "Guides vérifiés",
-    chooseAudience: "Je suis…",
-  },
-  ar: {
-    eyebrow: "خريطة الأدلة المحليين — الجزائر",
-    title: "اكتشف الجزائر مع دليل محلي موثوق",
-    subtitle: "تصفّح المدن والمعالم وفرص الدراسة والأعمال — واحجز دليلاً محلياً بنقرة واحدة.",
-    searchPlaceholder: "ابحث عن مدينة، معلم، جامعة، حي أو دليل…",
-    filtersTitle: "ماذا تبحث عنه؟",
-    featuredFor: "مختار لـ",
-    talkToGuide: "تواصل مع دليل محلي",
-    viewCity: "استكشاف",
-    liveInsights: "آخر المستجدات من الجزائر",
-    liveSub: "تحديثات يومية لتعود دائماً.",
-    verifiedGuides: "أدلة موثوقون",
-    chooseAudience: "أنا…",
-  },
-} as const;
-
-type Lang = keyof typeof UI_STRINGS;
-
-import { lazy, Suspense } from "react";
 const AlgeriaLeafletMap = lazy(() => import("@/components/map/AlgeriaLeafletMap"));
 
-
 export default function AlgeriaMap() {
-  const [lang, setLang] = useState<Lang>("en");
-  const [audience, setAudience] = useState<AudienceType>("tourist");
-  const [filters, setFilters] = useState<Set<FilterCategory>>(new Set());
+  const [mode, setMode] = useState<AudienceType>("tourist");
+  const [filters, setFilters] = useState<Set<ModeFilter>>(new Set());
   const [query, setQuery] = useState("");
   const [selectedCityId, setSelectedCityId] = useState<string>("alger");
 
-  const t = UI_STRINGS[lang];
+  // Reset filters whenever mode changes — no leaking filter state across modes
+  const setModeStrict = (m: AudienceType) => {
+    setMode(m);
+    setFilters(new Set());
+  };
 
+  // Cities visible on the map: only those with content for the active mode
+  // and matching active mode-specific filters + search query.
   const visibleCities = useMemo(() => {
     const q = query.trim().toLowerCase();
     return ALGERIA_CITIES.filter((c) => {
-      const matchesFilters =
-        filters.size === 0 || [...filters].every((f) => c.categories.includes(f));
-      if (!matchesFilters) return false;
+      const places = c.places[mode];
+      const guides = c.guideIds[mode];
+      // Mode gating — strict empty-state: city must have places OR guides for the mode
+      if (places.length === 0 && guides.length === 0) return false;
+
+      if (filters.size > 0) {
+        const hasAny = places.some((p) => filters.has(p.filter));
+        if (!hasAny) return false;
+      }
+
       if (!q) return true;
-      const guideMatch = c.guideIds.some((id) =>
+      const guideMatch = guides.some((id) =>
         getGuideById(id)?.name.toLowerCase().includes(q),
       );
       return (
         c.name.toLowerCase().includes(q) ||
         c.nameAr.includes(q) ||
-        c.places.some((p) => p.name.toLowerCase().includes(q)) ||
+        places.some((p) => p.name.toLowerCase().includes(q)) ||
         guideMatch
       );
     });
-  }, [filters, query]);
+  }, [mode, filters, query]);
 
   const selectedCity =
-    visibleCities.find((c) => c.id === selectedCityId) ?? visibleCities[0] ?? ALGERIA_CITIES[0];
+    visibleCities.find((c) => c.id === selectedCityId) ?? visibleCities[0] ?? null;
 
   const featuredCities = useMemo(
-    () => ALGERIA_CITIES.filter((c) => c.audience.includes(audience)).slice(0, 4),
-    [audience],
+    () =>
+      ALGERIA_CITIES.filter(
+        (c) => c.places[mode].length > 0 || c.guideIds[mode].length > 0,
+      ).slice(0, 4),
+    [mode],
   );
 
-  const toggleFilter = (f: FilterCategory) => {
+  const visibleInsights = useMemo(
+    () => LIVE_INSIGHTS.filter((i) => i.mode === mode),
+    [mode],
+  );
+
+  const modeFilters = MODE_FILTERS[mode];
+  const ModeIcon = MODE_ICONS[mode];
+
+  const toggleFilter = (f: ModeFilter) => {
     setFilters((prev) => {
       const next = new Set(prev);
       if (next.has(f)) next.delete(f);
@@ -155,101 +119,129 @@ export default function AlgeriaMap() {
     });
   };
 
-  const isRtl = lang === "ar";
+  const markers = useMemo(
+    () =>
+      visibleCities.map((c) => ({
+        id: c.id,
+        name: c.name,
+        lat: c.lat,
+        lng: c.lng,
+        tagline: c.highlights[mode][0],
+      })),
+    [visibleCities, mode],
+  );
 
   return (
     <PageWrapper showFooter fullWidth>
-      <div dir={isRtl ? "rtl" : "ltr"} className="bg-gradient-to-b from-primary/5 via-background to-background">
+      <div className="bg-gradient-to-b from-primary/5 via-background to-background">
         {/* Hero */}
         <section className="border-b border-border">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-14">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium">
-                  <Sparkles className="h-3.5 w-3.5" /> {t.eyebrow}
-                </div>
-                <h1 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-display tracking-tight text-foreground">
-                  {t.title}
-                </h1>
-                <p className="mt-3 text-muted-foreground text-base sm:text-lg">{t.subtitle}</p>
-              </div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium">
+              <Sparkles className="h-3.5 w-3.5" /> Algeria Live Guide Map
+            </div>
+            <h1 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-display tracking-tight text-foreground">
+              First, choose how you're discovering Algeria
+            </h1>
+            <p className="mt-3 text-muted-foreground text-base sm:text-lg max-w-2xl">
+              The map, filters, places and guides will all adapt to your choice. One mode at a time — no mixing.
+            </p>
 
-              {/* Language switcher */}
-              <div className="flex items-center gap-2">
-                <Globe2 className="h-4 w-4 text-muted-foreground" />
-                {(["en", "fr", "ar"] as Lang[]).map((l) => (
+            {/* SINGLE mode selector — only place this appears */}
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {(Object.keys(MODE_LABELS) as AudienceType[]).map((m) => {
+                const Icon = MODE_ICONS[m];
+                const active = mode === m;
+                return (
                   <button
-                    key={l}
+                    key={m}
                     type="button"
-                    onClick={() => setLang(l)}
+                    onClick={() => setModeStrict(m)}
+                    aria-pressed={active}
                     className={
-                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors " +
-                      (lang === l
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/70")
+                      "group text-start rounded-2xl border-2 p-5 transition-all " +
+                      (active
+                        ? "border-primary bg-primary/5 shadow-md"
+                        : "border-border bg-card hover:border-primary/40")
                     }
                   >
-                    {l.toUpperCase()}
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={
+                          "h-10 w-10 rounded-xl grid place-items-center transition-colors " +
+                          (active
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary")
+                        }
+                      >
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-foreground">{MODE_LABELS[m]}</div>
+                        <div className="text-xs text-muted-foreground">I'm here as a {MODE_LABELS[m].toLowerCase()}</div>
+                      </div>
+                      {active && (
+                        <Badge variant="approved">Active</Badge>
+                      )}
+                    </div>
+                    <p className="mt-3 text-sm text-muted-foreground">{MODE_TAGLINES[m]}</p>
                   </button>
-                ))}
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Active mode header */}
+        <section className="border-b border-border bg-card/50">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary text-primary-foreground grid place-items-center">
+                  <ModeIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Showing</div>
+                  <div className="font-semibold text-foreground">
+                    {MODE_LABELS[mode]} mode · {visibleCities.length} cities
+                  </div>
+                </div>
+              </div>
+
+              {/* Search */}
+              <div className="relative flex-1">
+                <Search className="absolute top-1/2 -translate-y-1/2 left-4 h-5 w-5 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={`Search ${MODE_LABELS[mode].toLowerCase()} places, cities or guides…`}
+                  className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
               </div>
             </div>
 
-            {/* Search */}
-            <div className="mt-6 relative">
-              <Search className="absolute top-1/2 -translate-y-1/2 start-4 h-5 w-5 text-muted-foreground" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t.searchPlaceholder}
-                className="w-full h-14 ps-12 pe-4 rounded-2xl border border-border bg-card text-foreground placeholder:text-muted-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            {/* Audience selector */}
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <span className="text-sm text-muted-foreground me-1">{t.chooseAudience}</span>
-              {(Object.keys(AUDIENCE_LABELS) as AudienceType[]).map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setAudience(a)}
-                  className={
-                    "px-4 py-2 rounded-full text-sm font-medium border transition-colors " +
-                    (audience === a
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-card text-foreground border-border hover:border-primary/40")
-                  }
-                >
-                  {AUDIENCE_LABELS[a]}
-                </button>
-              ))}
-            </div>
-
-            {/* Filters */}
+            {/* Mode-specific filter bar — strictly only this mode's filters */}
             <div className="mt-5">
               <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
-                {t.filtersTitle}
+                {MODE_LABELS[mode]} filters
               </p>
               <div className="flex flex-wrap gap-2">
-                {(Object.keys(FILTER_LABELS) as FilterCategory[]).map((f) => {
-                  const Icon = FILTER_ICONS[f];
-                  const active = filters.has(f);
+                {modeFilters.map((f) => {
+                  const active = filters.has(f.id);
                   return (
                     <button
-                      key={f}
+                      key={f.id}
                       type="button"
-                      onClick={() => toggleFilter(f)}
+                      onClick={() => toggleFilter(f.id)}
                       className={
-                        "inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm border transition-colors " +
+                        "px-3 py-2 rounded-full text-sm border transition-colors " +
                         (active
-                          ? "bg-accent text-accent-foreground border-accent"
-                          : "bg-card text-foreground border-border hover:border-accent/40")
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card text-foreground border-border hover:border-primary/40")
                       }
                     >
-                      <Icon className="h-4 w-4" />
-                      {FILTER_LABELS[f]}
+                      {f.label}
                     </button>
                   );
                 })}
@@ -270,178 +262,235 @@ export default function AlgeriaMap() {
         {/* Map + city detail */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
           <div className="grid lg:grid-cols-5 gap-6">
-            {/* Map */}
             <div className="lg:col-span-3 rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold text-foreground flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-primary" /> Interactive map of Algeria
+                  <MapPin className="h-4 w-4 text-primary" />
+                  {MODE_LABELS[mode]} map of Algeria
                 </h2>
                 <span className="text-xs text-muted-foreground">
-                  {visibleCities.length} / {ALGERIA_CITIES.length} cities
+                  {visibleCities.length} cities for {MODE_LABELS[mode].toLowerCase()}s
                 </span>
               </div>
               <div className="aspect-[4/5] sm:aspect-[5/4] w-full rounded-2xl overflow-hidden border border-border">
-                <Suspense fallback={<div className="w-full h-full grid place-items-center text-sm text-muted-foreground">Loading map…</div>}>
-                  <AlgeriaLeafletMap
-                    cities={visibleCities}
-                    selectedId={selectedCity?.id ?? ""}
-                    onSelect={(id) => setSelectedCityId(id)}
-                  />
-                </Suspense>
+                {markers.length === 0 ? (
+                  <div className="w-full h-full grid place-items-center text-center p-6">
+                    <div>
+                      <MapPin className="h-8 w-8 mx-auto text-muted-foreground" />
+                      <p className="mt-3 text-sm text-muted-foreground">{MODE_EMPTY[mode]}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <Suspense
+                    fallback={
+                      <div className="w-full h-full grid place-items-center text-sm text-muted-foreground">
+                        Loading map…
+                      </div>
+                    }
+                  >
+                    <AlgeriaLeafletMap
+                      cities={markers}
+                      selectedId={selectedCity?.id ?? ""}
+                      onSelect={(id) => setSelectedCityId(id)}
+                    />
+                  </Suspense>
+                )}
               </div>
               <p className="text-xs text-muted-foreground mt-3">
-                Tap a city to see local guides, highlights, and travel tips.
+                Tap a city to see {MODE_LABELS[mode].toLowerCase()}-relevant places and guides.
               </p>
             </div>
 
-            {/* City detail */}
             <div className="lg:col-span-2 space-y-4">
-              {selectedCity && <CityDetailCard city={selectedCity} talkLabel={t.talkToGuide} />}
+              {selectedCity ? (
+                <CityDetailCard city={selectedCity} mode={mode} />
+              ) : (
+                <div className="rounded-3xl border border-border bg-card p-8 text-center">
+                  <MapPin className="h-8 w-8 mx-auto text-muted-foreground" />
+                  <p className="mt-3 text-sm text-muted-foreground">{MODE_EMPTY[mode]}</p>
+                </div>
+              )}
             </div>
           </div>
         </section>
 
-        {/* Featured for audience */}
+        {/* Featured cities for active mode */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-10">
           <div className="flex items-end justify-between mb-4">
             <div>
               <h2 className="text-2xl font-display text-foreground">
-                {t.featuredFor} <span className="text-primary">{AUDIENCE_LABELS[audience]}s</span>
+                Top picks for <span className="text-primary">{MODE_LABELS[mode].toLowerCase()}s</span>
               </h2>
-              <p className="text-sm text-muted-foreground">
-                Personalized picks based on what you're here for.
-              </p>
+              <p className="text-sm text-muted-foreground">{MODE_TAGLINES[mode]}</p>
             </div>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {featuredCities.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setSelectedCityId(c.id);
-                  if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                className="text-start rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:-translate-y-0.5 transition-all shadow-sm"
-              >
-                <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
-                  <img
-                    src={CITY_IMAGES[c.id]}
-                    alt={c.name}
-                    loading="lazy"
-                    width={512}
-                    height={384}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-4">
-                  <div className="font-semibold text-foreground">{c.name}</div>
-                  <div className="text-xs text-muted-foreground">{c.highlights[0]}</div>
-                  <div className="mt-2 flex items-center gap-1 text-xs text-foreground">
-                    <Star className="h-3.5 w-3.5 text-accent fill-accent" /> {c.rating} · {c.reviews.toLocaleString()} reviews
+          {featuredCities.length === 0 ? (
+            <EmptyMode mode={mode} />
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {featuredCities.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCityId(c.id);
+                    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="text-start rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:-translate-y-0.5 transition-all shadow-sm"
+                >
+                  <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
+                    <img
+                      src={CITY_IMAGES[c.id]}
+                      alt={c.name}
+                      loading="lazy"
+                      width={512}
+                      height={384}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                </div>
-              </button>
-            ))}
-          </div>
+                  <div className="p-4">
+                    <div className="font-semibold text-foreground">{c.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {c.highlights[mode][0] ?? "—"}
+                    </div>
+                    <div className="mt-2 flex items-center gap-1 text-xs text-foreground">
+                      <Star className="h-3.5 w-3.5 text-accent fill-accent" /> {c.rating} ·{" "}
+                      {c.reviews.toLocaleString()} reviews
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </section>
 
-        {/* Live insights */}
+        {/* Live insights — mode filtered */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
           <div className="mb-4">
-            <h2 className="text-2xl font-display text-foreground">{t.liveInsights}</h2>
-            <p className="text-sm text-muted-foreground">{t.liveSub}</p>
+            <h2 className="text-2xl font-display text-foreground">
+              Live insights for {MODE_LABELS[mode].toLowerCase()}s
+            </h2>
+            <p className="text-sm text-muted-foreground">Updated daily for your selected mode.</p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {LIVE_INSIGHTS.map((i) => {
-              const Icon =
-                i.type === "trending"
-                  ? TrendingUp
-                  : i.type === "new-guide"
-                    ? Users
-                    : i.type === "question"
-                      ? HelpCircle
-                      : i.type === "recommended"
-                        ? Sparkles
-                        : Bell;
-              return (
-                <div
-                  key={i.id}
-                  className="rounded-2xl border border-border bg-card p-5 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide">
-                    <Icon className="h-3.5 w-3.5" /> {i.type.replace("-", " ")}
-                  </div>
-                  <h3 className="mt-3 font-semibold text-foreground">{i.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{i.body}</p>
-                  {i.city && (
-                    <div className="mt-3 text-xs text-muted-foreground inline-flex items-center gap-1">
-                      <MapPin className="h-3 w-3" /> {i.city}
+          {visibleInsights.length === 0 ? (
+            <EmptyMode mode={mode} />
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {visibleInsights.map((i) => {
+                const Icon =
+                  i.type === "trending"
+                    ? TrendingUp
+                    : i.type === "new-guide"
+                      ? Users
+                      : i.type === "question"
+                        ? HelpCircle
+                        : i.type === "recommended"
+                          ? Sparkles
+                          : Bell;
+                return (
+                  <div
+                    key={i.id}
+                    className="rounded-2xl border border-border bg-card p-5 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide">
+                      <Icon className="h-3.5 w-3.5" /> {i.type.replace("-", " ")}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                    <h3 className="mt-3 font-semibold text-foreground">{i.title}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{i.body}</p>
+                    {i.city && (
+                      <div className="mt-3 text-xs text-muted-foreground inline-flex items-center gap-1">
+                        <MapPin className="h-3 w-3" /> {i.city}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
-        {/* Verified guides strip */}
+        {/* Verified guides — only for active mode */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-20">
           <div className="flex items-end justify-between mb-4">
-            <h2 className="text-2xl font-display text-foreground">{t.verifiedGuides}</h2>
+            <h2 className="text-2xl font-display text-foreground">
+              Verified {MODE_LABELS[mode].toLowerCase()} guides
+            </h2>
             <Link to="/guides" className="text-sm text-primary hover:underline">
               See all guides →
             </Link>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {SAMPLE_GUIDES.slice(0, 4).map((g) => (
-              <div
-                key={g.id}
-                className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-3 shadow-sm hover:border-primary/40 transition-colors"
-              >
-                <div className="flex items-start gap-3">
-                  <Avatar name={g.name} size="lg" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-semibold text-foreground truncate">{g.name}</span>
-                      {g.verified && (
-                        <ShieldCheck className="h-4 w-4 text-primary" aria-label="Verified" />
-                      )}
+          {(() => {
+            const guides = featuredCities
+              .flatMap((c) => c.guideIds[mode].map(getGuideById))
+              .filter((g): g is NonNullable<typeof g> => Boolean(g))
+              .slice(0, 4);
+            if (guides.length === 0) return <EmptyMode mode={mode} />;
+            return (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {guides.map((g) => (
+                  <div
+                    key={g.id}
+                    className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-3 shadow-sm hover:border-primary/40 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <Avatar name={g.name} size="lg" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-foreground truncate">{g.name}</span>
+                          {g.verified && (
+                            <ShieldCheck className="h-4 w-4 text-primary" aria-label="Verified" />
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                          <MapPin className="h-3 w-3" /> {g.city}
+                        </div>
+                        <div className="mt-1 text-xs text-foreground inline-flex items-center gap-1">
+                          <Star className="h-3.5 w-3.5 text-accent fill-accent" /> {g.rating} · {g.sessions} sessions
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground inline-flex items-center gap-1">
-                      <MapPin className="h-3 w-3" /> {g.city}
+                    <p className="text-sm text-muted-foreground line-clamp-2">{g.specialty}</p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> ~{g.responseTimeMin} min reply
+                      </span>
+                      <span className="inline-flex gap-1">
+                        {g.languages.slice(0, 3).map((l) => (
+                          <span key={l}>{getLanguageFlag(l)}</span>
+                        ))}
+                      </span>
                     </div>
-                    <div className="mt-1 text-xs text-foreground inline-flex items-center gap-1">
-                      <Star className="h-3.5 w-3.5 text-accent fill-accent" /> {g.rating} · {g.sessions} sessions
-                    </div>
+                    <Link to="/guides" className="w-full">
+                      <Button className="w-full" size="sm">
+                        <MessageCircle className="h-4 w-4" /> {MODE_CTA[mode]}
+                      </Button>
+                    </Link>
                   </div>
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-2">{g.specialty}</p>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> ~{g.responseTimeMin} min reply
-                  </span>
-                  <span className="inline-flex gap-1">
-                    {g.languages.slice(0, 3).map((l) => (
-                      <span key={l}>{getLanguageFlag(l)}</span>
-                    ))}
-                  </span>
-                </div>
-                <Link to="/guides" className="w-full">
-                  <Button className="w-full" size="sm">
-                    <MessageCircle className="h-4 w-4" /> {t.talkToGuide}
-                  </Button>
-                </Link>
+                ))}
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </section>
       </div>
     </PageWrapper>
   );
 }
 
-function CityDetailCard({ city, talkLabel }: { city: CityNode; talkLabel: string }) {
+function EmptyMode({ mode }: { mode: AudienceType }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-border bg-card/50 p-8 text-center">
+      <p className="text-sm text-muted-foreground">{MODE_EMPTY[mode]}</p>
+    </div>
+  );
+}
+
+function CityDetailCard({ city, mode }: { city: CityNode; mode: AudienceType }) {
+  const places = city.places[mode];
+  const guideIds = city.guideIds[mode];
+  const highlights = city.highlights[mode];
+  const tips = city.tips[mode];
+  const hasContent = places.length > 0 || guideIds.length > 0 || highlights.length > 0;
+
   return (
     <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm">
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
@@ -463,123 +512,118 @@ function CityDetailCard({ city, talkLabel }: { city: CityNode; talkLabel: string
             <span className="opacity-90">{city.reviews.toLocaleString()} reviews</span>
           </div>
         </div>
-      </div>
-      <div className="p-6 pt-4">
-        <div className="flex flex-wrap gap-1">
-          {city.categories.slice(0, 4).map((c) => (
-            <Badge key={c} variant="default">
-              {FILTER_LABELS[c]}
-              </Badge>
-          ))}
+        <div className="absolute top-3 left-4">
+          <Badge variant="approved">{MODE_LABELS[mode]} view</Badge>
         </div>
       </div>
 
-      <div className="p-6 space-y-5">
-        {/* Highlights */}
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-            Highlights
-          </p>
-          <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-foreground">
-            {city.highlights.map((h) => (
-              <li key={h} className="flex items-start gap-1.5">
-                <span className="text-primary">•</span> {h}
-              </li>
-            ))}
-          </ul>
+      {!hasContent ? (
+        <div className="p-8 text-center">
+          <p className="text-sm text-muted-foreground">{MODE_EMPTY[mode]}</p>
         </div>
+      ) : (
+        <div className="p-6 space-y-5">
+          {highlights.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                {MODE_LABELS[mode]} highlights
+              </p>
+              <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-foreground">
+                {highlights.map((h) => (
+                  <li key={h} className="flex items-start gap-1.5">
+                    <span className="text-primary">•</span> {h}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-        {/* Tips grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <InfoRow icon={Bus} label="Transport" value={city.transportTip} />
-          <InfoRow icon={ShieldAlert} label="Safety" value={city.safetyTip} />
-          <InfoRow icon={Wallet} label="Cost / day" value={city.costEstimate} />
-          <InfoRow
-            icon={Languages}
-            label="Languages"
-            value={city.languages.map((l) => getLanguageFlag(l) || l).join("  ")}
-          />
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <InfoRow icon={Bus} label="Transport" value={tips.transport} />
+            <InfoRow icon={ShieldAlert} label="Safety" value={tips.safety} />
+            <InfoRow icon={Wallet} label="Cost / day" value={tips.cost} />
+            <InfoRow
+              icon={Languages}
+              label="Languages"
+              value={["ar", "fr", "en"].map((l) => getLanguageFlag(l) || l).join("  ")}
+            />
+          </div>
 
-        {/* Places */}
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-            Notable places
-          </p>
-          <div className="space-y-2">
-            {city.places.map((p) => (
-              <div
-                key={p.id}
-                className="rounded-xl border border-border p-3 flex items-start justify-between gap-3"
-              >
-                <div className="min-w-0">
-                  <div className="font-medium text-foreground text-sm">{p.name}</div>
-                  <div className="text-xs text-muted-foreground line-clamp-2">{p.description}</div>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {p.categories.map((c) => (
-                      <Badge key={c} variant="default">
-                        {FILTER_LABELS[c]}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div className="text-xs text-foreground inline-flex items-center gap-1 whitespace-nowrap">
-                  <Star className="h-3 w-3 text-accent fill-accent" /> {p.rating}
-                </div>
+          {places.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                {MODE_LABELS[mode]} places
+              </p>
+              <div className="space-y-2">
+                {places.map((p) => (
+                  <PlaceRow key={p.id} place={p} mode={mode} />
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          )}
 
-        {/* Local guides */}
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-            Local guides in {city.name}
-          </p>
-          <div className="space-y-2">
-            {city.guideIds.map((gid) => {
-              const g = getGuideById(gid);
-              if (!g) return null;
-              return (
-                <div
-                  key={g.id}
-                  className="rounded-xl border border-border p-3 flex items-center gap-3"
-                >
-                  <Avatar name={g.name} size="md" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-medium text-foreground text-sm truncate">{g.name}</span>
-                      {g.verified && <ShieldCheck className="h-3.5 w-3.5 text-primary" />}
+          {guideIds.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                {MODE_LABELS[mode]} guides in {city.name}
+              </p>
+              <div className="space-y-2">
+                {guideIds.map((gid) => {
+                  const g = getGuideById(gid);
+                  if (!g) return null;
+                  return (
+                    <div
+                      key={g.id}
+                      className="rounded-xl border border-border p-3 flex items-center gap-3"
+                    >
+                      <Avatar name={g.name} size="md" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-foreground text-sm truncate">
+                            {g.name}
+                          </span>
+                          {g.verified && <ShieldCheck className="h-3.5 w-3.5 text-primary" />}
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">{g.specialty}</div>
+                      </div>
+                      <Link to="/guides">
+                        <Button size="sm">
+                          <MessageCircle className="h-4 w-4" />
+                          {MODE_CTA[mode]}
+                        </Button>
+                      </Link>
                     </div>
-                    <div className="text-xs text-muted-foreground truncate">{g.specialty}</div>
-                    <div className="mt-0.5 text-[11px] text-muted-foreground inline-flex items-center gap-2">
-                      <span className="inline-flex items-center gap-0.5">
-                        <Star className="h-3 w-3 text-accent fill-accent" />
-                        {g.rating}
-                      </span>
-                      <span>· {g.sessions} sessions</span>
-                      <span className="inline-flex items-center gap-0.5">
-                        · <Clock className="h-3 w-3" /> ~{g.responseTimeMin}m
-                      </span>
-                    </div>
-                  </div>
-                  <Link to="/guides">
-                    <Button size="sm">
-                      <MessageCircle className="h-4 w-4" />
-                      Talk
-                    </Button>
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-        <Link to="/guides" className="block">
-          <Button className="w-full" size="lg">
-            <MessageCircle className="h-4 w-4" /> {talkLabel}
-          </Button>
-        </Link>
+          <Link to="/guides" className="block">
+            <Button className="w-full" size="lg">
+              <MessageCircle className="h-4 w-4" /> {MODE_CTA[mode]}
+            </Button>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlaceRow({ place, mode }: { place: MapPlace; mode: AudienceType }) {
+  return (
+    <div className="rounded-xl border border-border p-3 flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <div className="font-medium text-foreground text-sm">{place.name}</div>
+        <div className="text-xs text-muted-foreground line-clamp-2">{place.description}</div>
+        <div className="mt-1 flex flex-wrap gap-1">
+          <Badge variant="default">
+            {MODE_FILTERS[mode].find((f) => f.id === place.filter)?.label ?? place.filter}
+          </Badge>
+        </div>
+      </div>
+      <div className="text-xs text-foreground inline-flex items-center gap-1 whitespace-nowrap">
+        <Star className="h-3 w-3 text-accent fill-accent" /> {place.rating}
       </div>
     </div>
   );
