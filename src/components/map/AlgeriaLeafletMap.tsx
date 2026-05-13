@@ -2,16 +2,23 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Tooltip, LayersControl, ZoomControl } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { ALGERIA_CITIES, type CityNode } from "@/lib/algeriaMapData";
 import { CITY_IMAGES } from "@/lib/cityImages";
 
+export interface MapMarker {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  tagline?: string;
+}
+
 interface Props {
-  cities: CityNode[];
+  cities: MapMarker[];
   selectedId: string;
   onSelect: (id: string) => void;
 }
 
-function buildIcon(city: CityNode, active: boolean) {
+function buildIcon(city: MapMarker, active: boolean) {
   const size = active ? 60 : 46;
   const ringColor = active ? "var(--primary)" : "rgba(255,255,255,0.95)";
   const img = CITY_IMAGES[city.id] ?? "";
@@ -96,7 +103,7 @@ export default function AlgeriaLeafletMap({ cities, selectedId, onSelect }: Prop
           <Tooltip direction="top" offset={[0, -28]} opacity={1}>
             <div className="text-xs">
               <div className="font-semibold">{c.name}</div>
-              <div className="text-muted-foreground">{c.highlights[0]}</div>
+              {c.tagline && <div className="text-muted-foreground">{c.tagline}</div>}
             </div>
           </Tooltip>
         </Marker>
@@ -104,5 +111,3 @@ export default function AlgeriaLeafletMap({ cities, selectedId, onSelect }: Prop
     </MapContainer>
   );
 }
-
-export { ALGERIA_CITIES };
