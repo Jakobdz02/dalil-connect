@@ -66,15 +66,13 @@ export default function Signup() {
 
     setSubmitting(true);
 
-    // reCAPTCHA v3 — fail open on infra errors, block on low score
+    // reCAPTCHA v3 — advisory only, so false low scores never block signup.
     const token = await getToken("signup");
     if (token) {
       try {
         const result = await verifyFn({ data: { token, action: "signup" } });
         if (!result.passed) {
-          setErrorMsg("Our system detected unusual activity. Please try again later.");
-          setSubmitting(false);
-          return;
+          console.warn("[signup] recaptcha returned a low score — continuing", result);
         }
       } catch (err) {
         console.warn("[signup] recaptcha verify failed — continuing", err);
