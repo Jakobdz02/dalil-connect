@@ -62,63 +62,175 @@ export type Database = {
           },
         ]
       }
+      guide_documents: {
+        Row: {
+          doc_type: string
+          file_name: string
+          file_path: string
+          guide_id: string
+          id: string
+          uploaded_at: string
+        }
+        Insert: {
+          doc_type: string
+          file_name: string
+          file_path: string
+          guide_id: string
+          id?: string
+          uploaded_at?: string
+        }
+        Update: {
+          doc_type?: string
+          file_name?: string
+          file_path?: string
+          guide_id?: string
+          id?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_documents_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guide_languages: {
+        Row: {
+          created_at: string
+          guide_id: string
+          id: string
+          language: string
+          proficiency: string
+        }
+        Insert: {
+          created_at?: string
+          guide_id: string
+          id?: string
+          language: string
+          proficiency: string
+        }
+        Update: {
+          created_at?: string
+          guide_id?: string
+          id?: string
+          language?: string
+          proficiency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_languages_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guide_profiles: {
         Row: {
           approved_at: string | null
           approved_by: string | null
           availability: string | null
+          available_days: string[] | null
+          bio: string | null
           category: string
           city: string
           created_at: string
           description: string | null
+          expertise: string | null
           full_name: string
           id: string
           is_approved: boolean
           languages: string[]
+          phone: string | null
           photo_url: string | null
+          portfolio_links: string[] | null
           price_per_day: number | null
+          price_per_hour: number | null
+          rejected_at: string | null
           rejection_reason: string | null
+          session_type: string | null
           subcategory: string | null
+          submitted_at: string | null
           updated_at: string
           user_id: string
+          verification_status: string
+          verified_at: string | null
+          wilaya: string | null
+          work_history: string | null
+          working_hours: Json | null
+          years_experience: number | null
         }
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
           availability?: string | null
+          available_days?: string[] | null
+          bio?: string | null
           category: string
           city: string
           created_at?: string
           description?: string | null
+          expertise?: string | null
           full_name: string
           id?: string
           is_approved?: boolean
           languages: string[]
+          phone?: string | null
           photo_url?: string | null
+          portfolio_links?: string[] | null
           price_per_day?: number | null
+          price_per_hour?: number | null
+          rejected_at?: string | null
           rejection_reason?: string | null
+          session_type?: string | null
           subcategory?: string | null
+          submitted_at?: string | null
           updated_at?: string
           user_id: string
+          verification_status?: string
+          verified_at?: string | null
+          wilaya?: string | null
+          work_history?: string | null
+          working_hours?: Json | null
+          years_experience?: number | null
         }
         Update: {
           approved_at?: string | null
           approved_by?: string | null
           availability?: string | null
+          available_days?: string[] | null
+          bio?: string | null
           category?: string
           city?: string
           created_at?: string
           description?: string | null
+          expertise?: string | null
           full_name?: string
           id?: string
           is_approved?: boolean
           languages?: string[]
+          phone?: string | null
           photo_url?: string | null
+          portfolio_links?: string[] | null
           price_per_day?: number | null
+          price_per_hour?: number | null
+          rejected_at?: string | null
           rejection_reason?: string | null
+          session_type?: string | null
           subcategory?: string | null
+          submitted_at?: string | null
           updated_at?: string
           user_id?: string
+          verification_status?: string
+          verified_at?: string | null
+          wilaya?: string | null
+          work_history?: string | null
+          working_hours?: Json | null
+          years_experience?: number | null
         }
         Relationships: [
           {

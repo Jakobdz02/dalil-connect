@@ -56,28 +56,42 @@ export default function GuideDashboard() {
           </p>
         </div>
 
-        {/* Approval banner */}
+        {/* Verification status banner */}
         {!guide ? (
           <Banner tone="info" icon={<Info className="h-5 w-5" />}>
             <div className="flex items-center justify-between gap-4 flex-wrap">
-              <span>Complete your profile to start receiving bookings.</span>
-              <Link to="/guide/profile">
-                <Button size="sm">Create profile</Button>
+              <span>Start your onboarding to apply as a verified guide.</span>
+              <Link to="/guide/onboarding">
+                <Button size="sm">Start onboarding</Button>
               </Link>
             </div>
           </Banner>
-        ) : guide.is_approved ? (
+        ) : guide.verification_status === "verified" && guide.is_approved ? (
           <Banner tone="success" icon={<CheckCircle2 className="h-5 w-5" />}>
-            Your profile is approved and visible to seekers.
+            Verified ✓ Your profile is live and visible to clients.
+          </Banner>
+        ) : guide.verification_status === "rejected" ? (
+          <Banner tone="warning" icon={<Info className="h-5 w-5" />}>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                Your application was rejected.
+                {guide.rejection_reason && (
+                  <span className="block mt-1 text-sm opacity-90">Reason: {guide.rejection_reason}</span>
+                )}
+              </div>
+              <Link to="/guide/onboarding"><Button size="sm">Edit & resubmit</Button></Link>
+            </div>
+          </Banner>
+        ) : guide.verification_status === "draft" ? (
+          <Banner tone="info" icon={<Info className="h-5 w-5" />}>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <span>Your onboarding is incomplete. Finish it to submit for verification.</span>
+              <Link to="/guide/onboarding"><Button size="sm">Continue onboarding</Button></Link>
+            </div>
           </Banner>
         ) : (
           <Banner tone="warning" icon={<Clock className="h-5 w-5" />}>
-            Your profile is pending admin review.
-            {guide.rejection_reason && (
-              <span className="block mt-1 text-sm opacity-90">
-                Note from admin: {guide.rejection_reason}
-              </span>
-            )}
+            Your application is {guide.verification_status === "under_review" ? "under review" : "submitted"} — admins are checking your documents.
           </Banner>
         )}
 
@@ -90,7 +104,7 @@ export default function GuideDashboard() {
 
         {/* Quick links */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <NavCard to="/guide/profile" label="Edit Profile" />
+          <NavCard to="/guide/onboarding" label="Onboarding" />
           <NavCard to="/guide/bookings" label="View Bookings" />
           <NavCard to="/guide/messages" label="View Messages" />
         </div>

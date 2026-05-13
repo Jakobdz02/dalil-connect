@@ -48,6 +48,7 @@ export default function GuideList() {
         .from("guide_profiles")
         .select("id, full_name, city, languages, category, subcategory, description, price_per_day, photo_url")
         .eq("is_approved", true)
+        .eq("verification_status", "verified")
         .order("created_at", { ascending: false });
       setGuides((data ?? []) as GuideCardData[]);
       setLoading(false);

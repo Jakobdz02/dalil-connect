@@ -23,6 +23,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as MessagesBookingIdRouteImport } from './routes/messages.$bookingId'
 import { Route as GuidesIdRouteImport } from './routes/guides.$id'
 import { Route as GuideProfileRouteImport } from './routes/guide.profile'
+import { Route as GuideOnboardingRouteImport } from './routes/guide.onboarding'
 import { Route as GuideMessagesRouteImport } from './routes/guide.messages'
 import { Route as GuideDashboardRouteImport } from './routes/guide.dashboard'
 import { Route as GuideBookingsRouteImport } from './routes/guide.bookings'
@@ -99,6 +100,11 @@ const GuideProfileRoute = GuideProfileRouteImport.update({
   path: '/guide/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuideOnboardingRoute = GuideOnboardingRouteImport.update({
+  id: '/guide/onboarding',
+  path: '/guide/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuideMessagesRoute = GuideMessagesRouteImport.update({
   id: '/guide/messages',
   path: '/guide/messages',
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/guide/bookings': typeof GuideBookingsRoute
   '/guide/dashboard': typeof GuideDashboardRoute
   '/guide/messages': typeof GuideMessagesRoute
+  '/guide/onboarding': typeof GuideOnboardingRoute
   '/guide/profile': typeof GuideProfileRoute
   '/guides/$id': typeof GuidesIdRoute
   '/messages/$bookingId': typeof MessagesBookingIdRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/guide/bookings': typeof GuideBookingsRoute
   '/guide/dashboard': typeof GuideDashboardRoute
   '/guide/messages': typeof GuideMessagesRoute
+  '/guide/onboarding': typeof GuideOnboardingRoute
   '/guide/profile': typeof GuideProfileRoute
   '/guides/$id': typeof GuidesIdRoute
   '/messages/$bookingId': typeof MessagesBookingIdRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/guide/bookings': typeof GuideBookingsRoute
   '/guide/dashboard': typeof GuideDashboardRoute
   '/guide/messages': typeof GuideMessagesRoute
+  '/guide/onboarding': typeof GuideOnboardingRoute
   '/guide/profile': typeof GuideProfileRoute
   '/guides/$id': typeof GuidesIdRoute
   '/messages/$bookingId': typeof MessagesBookingIdRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/guide/bookings'
     | '/guide/dashboard'
     | '/guide/messages'
+    | '/guide/onboarding'
     | '/guide/profile'
     | '/guides/$id'
     | '/messages/$bookingId'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/guide/bookings'
     | '/guide/dashboard'
     | '/guide/messages'
+    | '/guide/onboarding'
     | '/guide/profile'
     | '/guides/$id'
     | '/messages/$bookingId'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/guide/bookings'
     | '/guide/dashboard'
     | '/guide/messages'
+    | '/guide/onboarding'
     | '/guide/profile'
     | '/guides/$id'
     | '/messages/$bookingId'
@@ -270,6 +282,7 @@ export interface RootRouteChildren {
   GuideBookingsRoute: typeof GuideBookingsRoute
   GuideDashboardRoute: typeof GuideDashboardRoute
   GuideMessagesRoute: typeof GuideMessagesRoute
+  GuideOnboardingRoute: typeof GuideOnboardingRoute
   GuideProfileRoute: typeof GuideProfileRoute
   GuidesIdRoute: typeof GuidesIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -376,6 +389,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuideProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guide/onboarding': {
+      id: '/guide/onboarding'
+      path: '/guide/onboarding'
+      fullPath: '/guide/onboarding'
+      preLoaderRoute: typeof GuideOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guide/messages': {
       id: '/guide/messages'
       path: '/guide/messages'
@@ -441,6 +461,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuideBookingsRoute: GuideBookingsRoute,
   GuideDashboardRoute: GuideDashboardRoute,
   GuideMessagesRoute: GuideMessagesRoute,
+  GuideOnboardingRoute: GuideOnboardingRoute,
   GuideProfileRoute: GuideProfileRoute,
   GuidesIdRoute: GuidesIdRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -449,13 +470,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
