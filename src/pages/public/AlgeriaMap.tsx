@@ -105,7 +105,8 @@ const UI_STRINGS = {
 
 type Lang = keyof typeof UI_STRINGS;
 
-import AlgeriaLeafletMap from "@/components/map/AlgeriaLeafletMap";
+import { lazy, Suspense } from "react";
+const AlgeriaLeafletMap = lazy(() => import("@/components/map/AlgeriaLeafletMap"));
 
 
 export default function AlgeriaMap() {
