@@ -19,8 +19,12 @@ import type { UserRole } from "@/types";
 type NavLink = { label: string; to: string };
 
 const LINKS_BY_ROLE: Record<UserRole | "guest", NavLink[]> = {
-  guest: [{ label: "Find a Guide", to: "/guides" }],
+  guest: [
+    { label: "Explore Map", to: "/map" },
+    { label: "Find a Guide", to: "/guides" },
+  ],
   seeker: [
+    { label: "Explore Map", to: "/map" },
     { label: "Browse Guides", to: "/guides" },
     { label: "My Bookings", to: "/bookings" },
   ],
