@@ -444,22 +444,31 @@ export default function AlgeriaMap() {
 function CityDetailCard({ city, talkLabel }: { city: CityNode; talkLabel: string }) {
   return (
     <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm">
-      <div className="bg-gradient-to-br from-primary/15 via-accent/10 to-transparent p-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="text-4xl">{city.heroEmoji}</div>
-            <h3 className="mt-2 text-2xl font-display text-foreground">
-              {city.name} <span className="text-base text-muted-foreground">· {city.nameAr}</span>
-            </h3>
-            <div className="mt-1 flex items-center gap-1 text-sm text-foreground">
-              <Star className="h-4 w-4 text-accent fill-accent" /> {city.rating} ·{" "}
-              <span className="text-muted-foreground">{city.reviews.toLocaleString()} reviews</span>
-            </div>
+      <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+        <img
+          src={CITY_IMAGES[city.id]}
+          alt={city.name}
+          loading="lazy"
+          width={1024}
+          height={576}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+        <div className="absolute bottom-3 left-4 right-4 text-white">
+          <h3 className="text-2xl font-display drop-shadow">
+            {city.name} <span className="text-base opacity-80">· {city.nameAr}</span>
+          </h3>
+          <div className="mt-1 flex items-center gap-1 text-sm">
+            <Star className="h-4 w-4 text-accent fill-accent" /> {city.rating} ·{" "}
+            <span className="opacity-90">{city.reviews.toLocaleString()} reviews</span>
           </div>
-          <div className="flex flex-wrap gap-1 justify-end max-w-[55%]">
-            {city.categories.slice(0, 4).map((c) => (
-              <Badge key={c} variant="default">
-                {FILTER_LABELS[c]}
+        </div>
+      </div>
+      <div className="p-6 pt-4">
+        <div className="flex flex-wrap gap-1">
+          {city.categories.slice(0, 4).map((c) => (
+            <Badge key={c} variant="default">
+              {FILTER_LABELS[c]}
               </Badge>
             ))}
           </div>
