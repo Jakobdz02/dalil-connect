@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Tooltip, LayersControl, ZoomControl } 
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { ALGERIA_CITIES, type CityNode } from "@/lib/algeriaMapData";
+import { CITY_IMAGES } from "@/lib/cityImages";
 
 interface Props {
   cities: CityNode[];
@@ -11,15 +12,15 @@ interface Props {
 }
 
 function buildIcon(city: CityNode, active: boolean) {
-  const size = active ? 56 : 44;
-  const ring = active ? "ring-4 ring-[color:var(--primary)]/40" : "";
+  const size = active ? 60 : 46;
+  const ringColor = active ? "var(--primary)" : "rgba(255,255,255,0.95)";
+  const img = CITY_IMAGES[city.id] ?? "";
   const html = `
-    <div class="relative flex flex-col items-center" style="width:${size}px">
-      <div class="flex items-center justify-center rounded-full bg-white shadow-[0_6px_20px_-6px_rgba(0,0,0,0.4)] border-2 border-[color:var(--primary)] ${ring}"
-        style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.55)}px;line-height:1;">
-        <span>${city.heroEmoji}</span>
+    <div style="display:flex;flex-direction:column;align-items:center;width:${size}px;">
+      <div style="width:${size}px;height:${size}px;border-radius:9999px;overflow:hidden;border:3px solid ${ringColor};box-shadow:0 8px 22px -8px rgba(0,0,0,0.55);background:#fff;">
+        <img src="${img}" alt="${city.name}" style="width:100%;height:100%;object-fit:cover;display:block;" />
       </div>
-      <div class="mt-1 px-2 py-0.5 rounded-full bg-white/95 text-[11px] font-semibold text-[color:var(--foreground)] shadow border border-[color:var(--border)] whitespace-nowrap">
+      <div style="margin-top:4px;padding:2px 8px;border-radius:9999px;background:rgba(255,255,255,0.96);color:#1A1612;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.15);">
         ${city.name}
       </div>
     </div>`;
