@@ -44,7 +44,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/60">© 2024 DALIL. All rights reserved.</p>
+          <p className="text-xs text-white/60">© 2026 DALIL. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Link
               to="/admin-login"
