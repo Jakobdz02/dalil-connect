@@ -11,8 +11,9 @@ export function useAgeVerification() {
     return age;
   }
 
-  function minAge(role: AgeRole): number {
-    return role === "guide" ? 18 : 16;
+  function minAge(_role: AgeRole): number {
+    // Both clients (seekers) and guides/mentors must be at least 18.
+    return 18;
   }
 
   function isAgeValid(dob: string, role: AgeRole): boolean {
