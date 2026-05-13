@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, X, UserX } from "lucide-react";
+import { Search, X, UserX, ChevronDown, Check } from "lucide-react";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,
+} from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { GuideCard, type GuideCardData } from "@/components/GuideCard";
@@ -16,6 +21,12 @@ import {
   normalizeCategory,
   type GuideCategory,
 } from "@/lib/guideCategories";
+import {
+  SPECIALIZATIONS,
+  SPECIALIZATION_HELPER,
+  flattenSpecializations,
+} from "@/lib/guideSpecializations";
+import { cn } from "@/lib/utils";
 
 const ALL = "__all__";
 
@@ -29,6 +40,7 @@ export default function GuideList() {
   const [language, setLanguage] = useState<string>(ALL);
   const [category, setCategory] = useState<string>(ALL);
   const [subcategory, setSubcategory] = useState<string>(ALL);
+  const [specOpen, setSpecOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -53,16 +65,12 @@ export default function GuideList() {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const availableSubcategories = useMemo(() => {
-    if (category === ALL) return [];
-    return Array.from(
-      new Set(
-        guides
-          .filter((g) => normalizeCategory(g.category) === category && g.subcategory)
-          .map((g) => g.subcategory as string),
-      ),
-    ).sort();
-  }, [guides, category]);
+  const activeCategory = category !== ALL ? (category as GuideCategory) : null;
+
+  const specGroups = useMemo(() => {
+    if (!activeCategory) return [];
+    return SPECIALIZATIONS[activeCategory] ?? [];
+  }, [activeCategory]);
 
   const filtered = useMemo(() => {
     return guides.filter((g) => {
@@ -73,7 +81,10 @@ export default function GuideList() {
       if (city !== ALL && g.city !== city) return false;
       if (language !== ALL && !g.languages.includes(language)) return false;
       if (category !== ALL && normalizeCategory(g.category) !== category) return false;
-      if (subcategory !== ALL && g.subcategory !== subcategory) return false;
+      if (subcategory !== ALL) {
+        const sub = (g.subcategory ?? "").toLowerCase().trim();
+        if (sub !== subcategory.toLowerCase().trim()) return false;
+      }
       return true;
     });
   }, [guides, search, city, language, category, subcategory]);
@@ -88,6 +99,8 @@ export default function GuideList() {
     setCategory(ALL);
     setSubcategory(ALL);
   };
+
+  const totalSpecCount = activeCategory ? flattenSpecializations(activeCategory).length : 0;
 
   return (
     <PageWrapper showFooter>
@@ -122,60 +135,128 @@ export default function GuideList() {
           )}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3 justify-center items-center">
-          <Select value={city} onValueChange={setCity}>
-            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Wilayas" /></SelectTrigger>
-            <SelectContent className="max-h-72">
-              <SelectItem value={ALL}>All Wilayas</SelectItem>
-              {WILAYAS.map((w) => (
-                <SelectItem key={w} value={w}>{w}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Hierarchical filters */}
+        <div className="max-w-4xl mx-auto space-y-3">
+          {/* Row 1: language → location → category */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground ml-1 mb-1 block">
+                1 · Language
+              </label>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="w-full"><SelectValue placeholder="All Languages" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL}>All Languages</SelectItem>
+                  {LANGUAGES.map((l) => (
+                    <SelectItem key={l.code} value={l.code}>
+                      {l.flag} {l.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Languages" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>All Languages</SelectItem>
-              {LANGUAGES.map((l) => (
-                <SelectItem key={l.code} value={l.code}>
-                  {l.flag} {l.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground ml-1 mb-1 block">
+                2 · Location
+              </label>
+              <Select value={city} onValueChange={setCity}>
+                <SelectTrigger className="w-full"><SelectValue placeholder="All Wilayas" /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value={ALL}>All Wilayas</SelectItem>
+                  {WILAYAS.map((w) => (
+                    <SelectItem key={w} value={w}>{w}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Categories" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>All Categories</SelectItem>
-              {GUIDE_CATEGORIES.map((c) => (
-                <SelectItem key={c} value={c}>{GUIDE_CATEGORY_LABELS[c as GuideCategory]}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground ml-1 mb-1 block">
+                3 · Category
+              </label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="w-full"><SelectValue placeholder="All Categories" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL}>All Categories</SelectItem>
+                  {GUIDE_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>{GUIDE_CATEGORY_LABELS[c as GuideCategory]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-          {category !== ALL && availableSubcategories.length > 0 && (
-            <Select value={subcategory} onValueChange={setSubcategory}>
-              <SelectTrigger className="w-[220px]"><SelectValue placeholder="All Specializations" /></SelectTrigger>
-              <SelectContent className="max-h-72">
-                <SelectItem value={ALL}>All Specializations</SelectItem>
-                {availableSubcategories.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Row 2: specialization (only when a category with specs is selected) */}
+          {activeCategory && specGroups.length > 0 && (
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 sm:p-4 animate-in fade-in slide-in-from-top-1">
+              <label className="text-xs font-medium text-primary ml-1 mb-1 block">
+                4 · Specialization · {GUIDE_CATEGORY_LABELS[activeCategory]}
+              </label>
+
+              <Popover open={specOpen} onOpenChange={setSpecOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={specOpen}
+                    className="w-full justify-between bg-background"
+                  >
+                    <span className={cn("truncate", subcategory === ALL && "text-muted-foreground")}>
+                      {subcategory === ALL ? "All specializations" : subcategory}
+                    </span>
+                    <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder={`Search ${totalSpecCount} specializations...`} />
+                    <CommandList className="max-h-72">
+                      <CommandEmpty>No specialization found.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all specializations"
+                          onSelect={() => { setSubcategory(ALL); setSpecOpen(false); }}
+                        >
+                          <Check className={cn("mr-2 h-4 w-4", subcategory === ALL ? "opacity-100" : "opacity-0")} />
+                          All specializations
+                        </CommandItem>
+                      </CommandGroup>
+                      {specGroups.map((group, idx) => (
+                        <CommandGroup key={idx} heading={group.label}>
+                          {group.items.map((item) => (
+                            <CommandItem
+                              key={item}
+                              value={item}
+                              onSelect={() => { setSubcategory(item); setSpecOpen(false); }}
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", subcategory === item ? "opacity-100" : "opacity-0")} />
+                              {item}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      ))}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+
+              <p className="text-xs text-muted-foreground mt-2 ml-1">
+                {SPECIALIZATION_HELPER[activeCategory]}
+              </p>
+            </div>
           )}
 
           {hasFilters && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="text-sm text-primary hover:underline"
-            >
-              Clear all filters
-            </button>
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="text-sm text-primary hover:underline"
+              >
+                Clear all filters
+              </button>
+            </div>
           )}
         </div>
 
@@ -184,15 +265,19 @@ export default function GuideList() {
           <LoadingSpinner fullPage />
         ) : (
           <>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground text-center">
               {filtered.length} {filtered.length === 1 ? "guide" : "guides"} found
             </div>
 
             {filtered.length === 0 ? (
               <EmptyState
                 icon={UserX}
-                title="No guides found"
-                description="Try adjusting your filters."
+                title="No guides found for these filters"
+                description={
+                  subcategory !== ALL
+                    ? "No guides match this specialization in the selected location. Try a different specialization, location, or language."
+                    : "Try adjusting your filters."
+                }
               />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
