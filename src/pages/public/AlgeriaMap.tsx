@@ -322,13 +322,24 @@ export default function AlgeriaMap() {
                   setSelectedCityId(c.id);
                   if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="text-start rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:-translate-y-0.5 transition-all shadow-sm"
+                className="text-start rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:-translate-y-0.5 transition-all shadow-sm"
               >
-                <div className="text-3xl">{c.heroEmoji}</div>
-                <div className="mt-2 font-semibold text-foreground">{c.name}</div>
-                <div className="text-xs text-muted-foreground">{c.highlights[0]}</div>
-                <div className="mt-3 flex items-center gap-1 text-xs text-foreground">
-                  <Star className="h-3.5 w-3.5 text-accent fill-accent" /> {c.rating} · {c.reviews.toLocaleString()} reviews
+                <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
+                  <img
+                    src={CITY_IMAGES[c.id]}
+                    alt={c.name}
+                    loading="lazy"
+                    width={512}
+                    height={384}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <div className="font-semibold text-foreground">{c.name}</div>
+                  <div className="text-xs text-muted-foreground">{c.highlights[0]}</div>
+                  <div className="mt-2 flex items-center gap-1 text-xs text-foreground">
+                    <Star className="h-3.5 w-3.5 text-accent fill-accent" /> {c.rating} · {c.reviews.toLocaleString()} reviews
+                  </div>
                 </div>
               </button>
             ))}
