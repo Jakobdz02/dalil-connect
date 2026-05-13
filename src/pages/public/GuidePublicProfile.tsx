@@ -47,6 +47,8 @@ export default function GuidePublicProfile({ id }: { id: string }) {
         .from("guide_profiles")
         .select("*")
         .eq("id", id)
+        .eq("is_approved", true)
+        .eq("verification_status", "verified")
         .maybeSingle();
       setGuide((data as GuideProfile) ?? null);
       setLoading(false);
