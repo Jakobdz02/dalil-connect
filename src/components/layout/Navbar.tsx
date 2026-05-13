@@ -28,7 +28,6 @@ const LINKS_BY_ROLE: Record<UserRole | "guest", NavLink[]> = {
   guide: [
     { label: "Explore Map", to: "/map" },
     { label: "Find a Guide", to: "/guides" },
-    { label: "My Profile", to: "/guide/profile" },
     { label: "Bookings", to: "/guide/bookings" },
   ],
   admin: [{ label: "Admin Panel", to: "/admin" }],
