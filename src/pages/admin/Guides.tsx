@@ -157,12 +157,12 @@ export default function AdminGuides() {
                     )}
                   </div>
                   <div className="flex sm:flex-col gap-2 sm:w-44">
-                    <Button size="sm" variant="outline" onClick={() => openReview(g)}>Review docs</Button>
+                    <Button size="sm" variant="ghost" onClick={() => openReview(g)}>Review docs</Button>
                     {g.verification_status !== "verified" && (
                       <Button size="sm" onClick={() => verify(g.id)} loading={busyId === g.id}>Verify & approve</Button>
                     )}
                     {g.verification_status === "submitted" && (
-                      <Button size="sm" variant="outline"
+                      <Button size="sm" variant="ghost"
                         onClick={() => update(g.id, "under_review")} loading={busyId === g.id}>
                         Mark under review
                       </Button>
@@ -255,7 +255,7 @@ export default function AdminGuides() {
 
               <div className="mt-6 flex flex-wrap gap-2 justify-end pt-4 border-t">
                 {reviewing.verification_status === "submitted" && (
-                  <Button variant="outline" onClick={() => update(reviewing.id, "under_review")}>
+                  <Button variant="ghost" onClick={() => update(reviewing.id, "under_review")}>
                     Mark under review
                   </Button>
                 )}
