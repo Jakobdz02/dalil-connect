@@ -105,49 +105,8 @@ const UI_STRINGS = {
 
 type Lang = keyof typeof UI_STRINGS;
 
-function CityMarker({
-  city,
-  active,
-  onClick,
-}: {
-  city: CityNode;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <g
-      onClick={onClick}
-      className="cursor-pointer transition-transform"
-      style={{ transformOrigin: `${city.x}px ${city.y}px` }}
-    >
-      <circle
-        cx={city.x}
-        cy={city.y}
-        r={active ? 26 : 18}
-        className={
-          active
-            ? "fill-primary/25 stroke-primary"
-            : "fill-primary/10 stroke-primary/60 hover:fill-primary/20"
-        }
-        strokeWidth={2}
-      />
-      <circle
-        cx={city.x}
-        cy={city.y}
-        r={6}
-        className={active ? "fill-primary" : "fill-primary/80"}
-      />
-      <text
-        x={city.x}
-        y={city.y - 28}
-        textAnchor="middle"
-        className="fill-foreground text-[18px] font-semibold pointer-events-none select-none"
-      >
-        {city.name}
-      </text>
-    </g>
-  );
-}
+import AlgeriaLeafletMap from "@/components/map/AlgeriaLeafletMap";
+
 
 export default function AlgeriaMap() {
   const [lang, setLang] = useState<Lang>("en");
