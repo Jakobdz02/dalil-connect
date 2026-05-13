@@ -40,6 +40,7 @@ import {
   type CityNode,
   type FilterCategory,
 } from "@/lib/algeriaMapData";
+import { CITY_IMAGES } from "@/lib/cityImages";
 
 const FILTER_ICONS: Record<FilterCategory, React.ComponentType<{ className?: string }>> = {
   tourism: Compass,
