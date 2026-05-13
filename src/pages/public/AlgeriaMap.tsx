@@ -280,11 +280,13 @@ export default function AlgeriaMap() {
                 </span>
               </div>
               <div className="aspect-[4/5] sm:aspect-[5/4] w-full rounded-2xl overflow-hidden border border-border">
-                <AlgeriaLeafletMap
-                  cities={visibleCities}
-                  selectedId={selectedCity?.id ?? ""}
-                  onSelect={(id) => setSelectedCityId(id)}
-                />
+                <Suspense fallback={<div className="w-full h-full grid place-items-center text-sm text-muted-foreground">Loading map…</div>}>
+                  <AlgeriaLeafletMap
+                    cities={visibleCities}
+                    selectedId={selectedCity?.id ?? ""}
+                    onSelect={(id) => setSelectedCityId(id)}
+                  />
+                </Suspense>
               </div>
               <p className="text-xs text-muted-foreground mt-3">
                 Tap a city to see local guides, highlights, and travel tips.
