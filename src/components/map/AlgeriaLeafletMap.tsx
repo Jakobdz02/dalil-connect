@@ -10,6 +10,7 @@ export interface MapMarker {
   lat: number;
   lng: number;
   tagline?: string;
+  image?: string;
 }
 
 interface Props {
