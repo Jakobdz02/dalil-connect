@@ -39,9 +39,12 @@ export interface CityNode {
   name: string;
   nameAr: string;
   region: "north" | "center" | "south" | "east" | "west";
-  // SVG coordinates on a 1000x1000 stylized Algeria map (approximate)
+  // SVG coordinates on a 1000x1000 stylized Algeria map (approximate, legacy)
   x: number;
   y: number;
+  // Real-world coordinates used by the interactive Leaflet map
+  lat: number;
+  lng: number;
   highlights: string[];
   places: MapPlace[];
   guideIds: string[];
