@@ -10,6 +10,7 @@ export interface MapMarker {
   lat: number;
   lng: number;
   tagline?: string;
+  image?: string;
 }
 
 interface Props {
@@ -21,7 +22,7 @@ interface Props {
 function buildIcon(city: MapMarker, active: boolean) {
   const size = active ? 60 : 46;
   const ringColor = active ? "var(--primary)" : "rgba(255,255,255,0.95)";
-  const img = CITY_IMAGES[city.id] ?? "";
+  const img = city.image ?? CITY_IMAGES[city.id] ?? "";
   const html = `
     <div style="display:flex;flex-direction:column;align-items:center;width:${size}px;">
       <div style="width:${size}px;height:${size}px;border-radius:9999px;overflow:hidden;border:3px solid ${ringColor};box-shadow:0 8px 22px -8px rgba(0,0,0,0.55);background:#fff;">

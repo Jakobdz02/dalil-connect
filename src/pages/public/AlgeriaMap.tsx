@@ -41,7 +41,7 @@ import {
   type MapPlace,
   type ModeFilter,
 } from "@/lib/algeriaMapData";
-import { CITY_IMAGES } from "@/lib/cityImages";
+import { getCityImage } from "@/lib/cityImages";
 
 const MODE_ICONS: Record<AudienceType, React.ComponentType<{ className?: string }>> = {
   tourist: Compass,
@@ -127,6 +127,7 @@ export default function AlgeriaMap() {
         lat: c.lat,
         lng: c.lng,
         tagline: c.highlights[mode][0],
+        image: getCityImage(c.id, mode),
       })),
     [visibleCities, mode],
   );
@@ -340,7 +341,7 @@ export default function AlgeriaMap() {
                 >
                   <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
                     <img
-                      src={CITY_IMAGES[c.id]}
+                      src={getCityImage(c.id, mode)}
                       alt={c.name}
                       loading="lazy"
                       width={512}
@@ -495,7 +496,7 @@ function CityDetailCard({ city, mode }: { city: CityNode; mode: AudienceType }) 
     <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm">
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
         <img
-          src={CITY_IMAGES[city.id]}
+          src={getCityImage(city.id, mode)}
           alt={city.name}
           loading="lazy"
           width={1024}
