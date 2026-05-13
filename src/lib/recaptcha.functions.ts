@@ -28,7 +28,8 @@ export const verifyRecaptcha = createServerFn({ method: "POST" })
         "error-codes"?: string[];
       };
       const score = typeof body.score === "number" ? body.score : null;
-      const passed = !!body.success && (score ?? 0) >= 0.5;
+      // Fail open when Google doesn't return a score, only block on clearly low scores.
+      const passed = !!body.success && (score === null || score >= 0.3);
       return { passed, score, reason: passed ? "ok" : "low-score" };
     } catch (err) {
       console.error("[recaptcha] verify request failed — failing open", err);
