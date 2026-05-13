@@ -322,16 +322,9 @@ export default function AlgeriaMap() {
               <div className="aspect-[4/5] sm:aspect-[5/4] w-full rounded-2xl bg-gradient-to-br from-accent/5 via-primary/5 to-background overflow-hidden">
                 <svg viewBox="0 0 800 900" className="w-full h-full">
                   {/* Stylized Algeria silhouette */}
-                  <defs>
-                    <linearGradient id="algeria-fill" x1="0" x2="1" y1="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--primary) / 0.10)" />
-                      <stop offset="100%" stopColor="hsl(var(--accent) / 0.08)" />
-                    </linearGradient>
-                  </defs>
                   <path
                     d="M180 160 L350 110 L520 130 L640 175 L700 250 L680 360 L720 460 L640 600 L580 760 L470 830 L360 800 L260 700 L200 560 L160 420 L150 280 Z"
-                    fill="url(#algeria-fill)"
-                    stroke="hsl(var(--primary) / 0.4)"
+                    className="fill-primary/10 stroke-primary/40"
                     strokeWidth="2"
                     strokeLinejoin="round"
                   />
