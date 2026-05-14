@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { GuideCard, type GuideCardData } from "@/components/GuideCard";
+import { AIMatchingBanner } from "@/components/matching/AIMatchingBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { WILAYAS, LANGUAGES } from "@/lib/algeriaData";
 import {
@@ -114,6 +115,8 @@ export default function GuideList() {
             Browse verified local guides across the country.
           </p>
         </div>
+
+        <AIMatchingBanner />
 
         {/* Search */}
         <div className="max-w-xl mx-auto relative">
