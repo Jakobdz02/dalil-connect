@@ -28,12 +28,54 @@ import {
   flattenSpecializations,
 } from "@/lib/guideSpecializations";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 const ALL = "__all__";
 
+const SAMPLE_GUIDES: GuideCardData[] = [
+  {
+    id: "sample-1", full_name: "Yacine Belkacem", city: "Algiers",
+    languages: ["ar", "fr", "en"], category: "tourism", subcategory: "Casbah & heritage walks",
+    description: "Algiers native and licensed cultural guide. Casbah, Bardo and coastal day-trips.",
+    price_per_day: 6500, photo_url: null,
+  },
+  {
+    id: "sample-2", full_name: "Lina Hadj-Said", city: "Oran",
+    languages: ["ar", "fr", "es"], category: "tourism", subcategory: "Coastal & gastronomy",
+    description: "Born and raised in Oran. Mediterranean coast, Santa Cruz, and the best local food.",
+    price_per_day: 5500, photo_url: null,
+  },
+  {
+    id: "sample-3", full_name: "Karim Bensaid", city: "Constantine",
+    languages: ["ar", "fr", "en"], category: "academic", subcategory: "University orientation",
+    description: "Helps international students with university enrollment, housing and admin.",
+    price_per_day: 4500, photo_url: null,
+  },
+  {
+    id: "sample-4", full_name: "Sofiane Amrani", city: "Tamanrasset",
+    languages: ["ar", "fr", "en"], category: "tourism", subcategory: "Sahara expeditions",
+    description: "Tuareg guide for Hoggar mountains and Sahara overnight expeditions.",
+    price_per_day: 12000, photo_url: null,
+  },
+  {
+    id: "sample-5", full_name: "Amina Khelifi", city: "Tlemcen",
+    languages: ["ar", "fr", "en"], category: "investment", subcategory: "Local market intel",
+    description: "Connects investors with verified suppliers and walks you through paperwork.",
+    price_per_day: 9000, photo_url: null,
+  },
+  {
+    id: "sample-6", full_name: "Omar Drici", city: "Béjaïa",
+    languages: ["ar", "fr", "kab"], category: "tourism", subcategory: "Kabyle coast & hikes",
+    description: "Hiking, Kabyle villages, Yemma Gouraya — local stories included.",
+    price_per_day: 5000, photo_url: null,
+  },
+];
+
 export default function GuideList() {
+  const { t } = useI18n();
   const [guides, setGuides] = useState<GuideCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [usingSamples, setUsingSamples] = useState(false);
 
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -51,7 +93,13 @@ export default function GuideList() {
         .eq("is_approved", true)
         .eq("verification_status", "verified")
         .order("created_at", { ascending: false });
-      setGuides((data ?? []) as GuideCardData[]);
+      const real = (data ?? []) as GuideCardData[];
+      if (real.length === 0) {
+        setGuides(SAMPLE_GUIDES);
+        setUsingSamples(true);
+      } else {
+        setGuides(real);
+      }
       setLoading(false);
     })();
   }, []);
