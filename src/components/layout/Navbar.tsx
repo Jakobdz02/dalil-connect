@@ -142,6 +142,10 @@ export function Navbar() {
               </Link>
             ))}
             <div className="border-t border-border my-2" />
+            <div className="px-3 py-1">
+              <LanguageSwitcher variant="compact" />
+            </div>
+            <div className="border-t border-border my-2" />
             {user ? (
               <>
                 <div className="flex items-center gap-3 px-3 py-2">
@@ -157,14 +161,14 @@ export function Navbar() {
                   onClick={() => setOpen(false)}
                   className="text-sm text-foreground hover:bg-muted rounded-md px-3 py-2"
                 >
-                  Profile Settings
+                  {t("nav.profile")}
                 </Link>
                 <button
                   type="button"
                   onClick={handleSignOut}
                   className="text-start text-sm text-foreground hover:bg-muted rounded-md px-3 py-2"
                 >
-                  Sign out
+                  {t("nav.signout")}
                 </button>
               </>
             ) : (
@@ -174,14 +178,14 @@ export function Navbar() {
                   onClick={() => setOpen(false)}
                   className="text-sm text-foreground hover:bg-muted rounded-md px-3 py-2"
                 >
-                  Login
+                  {t("nav.login")}
                 </Link>
                 <Link
                   to="/signup"
                   onClick={() => setOpen(false)}
                   className="text-sm font-medium text-primary hover:bg-muted rounded-md px-3 py-2"
                 >
-                  Sign Up
+                  {t("nav.signup")}
                 </Link>
               </>
             )}
