@@ -25,20 +25,22 @@ export function Footer() {
             links={[
               { label: "Find a Guide", to: "/guides" },
               { label: "Become a Guide", to: "/signup" },
+              { label: "How it works", to: "/faq" },
             ]}
           />
           <FooterCol
             title="Company"
             links={[
-              { label: "About", to: "/" },
-              { label: "Contact", to: "/" },
+              { label: "About", to: "/about" },
+              { label: "Contact", to: "/contact" },
+              { label: "FAQ", to: "/faq" },
             ]}
           />
           <FooterCol
             title="Legal"
             links={[
-              { label: "Privacy", to: "/" },
-              { label: "Terms", to: "/" },
+              { label: "Privacy", to: "/privacy" },
+              { label: "Terms", to: "/terms" },
             ]}
           />
         </div>

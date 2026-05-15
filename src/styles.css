@@ -68,15 +68,16 @@
   --popover: var(--card);
   --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.38 0.058 175);             /* #0F4B45 deep teal */
-  --primary-foreground: oklch(0.98 0.005 80);
-  --primary-soft: oklch(0.94 0.025 175);
+  --primary: oklch(0.32 0.065 165);             /* #064e3b emerald deep */
+  --primary-foreground: oklch(0.98 0.012 90);
+  --primary-soft: oklch(0.94 0.03 165);
+  --primary-glow: oklch(0.48 0.10 165);         /* #0d7a5f */
 
   --secondary: oklch(0.94 0.012 80);
   --secondary-foreground: var(--foreground);
 
-  --accent: oklch(0.72 0.13 75);                /* #C8963E warm gold */
-  --accent-foreground: oklch(0.18 0.014 50);
+  --accent: oklch(0.74 0.13 90);                /* #c9a84c prestige gold */
+  --accent-foreground: oklch(0.22 0.02 90);
 
   --muted: oklch(0.93 0.01 80);
   --muted-foreground: oklch(0.55 0.018 60);     /* #7A7570 sand gray */
@@ -88,7 +89,9 @@
 
   --border: oklch(0.9 0.012 80);
   --input: oklch(0.9 0.012 80);
-  --ring: oklch(0.38 0.058 175);
+  --ring: oklch(0.32 0.065 165);
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  --gradient-prestige: linear-gradient(135deg, oklch(0.32 0.065 165), oklch(0.48 0.10 165) 60%, var(--accent));
 
   --sidebar: oklch(0.99 0.004 80);
   --sidebar-foreground: var(--foreground);
