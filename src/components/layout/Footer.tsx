@@ -1,7 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { Compass } from "lucide-react";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { useI18n } from "@/lib/i18n";
 
 export function Footer() {
+  const { t } = useI18n();
+
   return (
     <footer className="bg-primary text-primary-foreground mt-16">
       <div className="container mx-auto px-4 sm:px-6 py-12 max-w-6xl">
@@ -15,52 +19,45 @@ export function Footer() {
                 DALIL <span className="text-accent text-lg">دليل</span>
               </span>
             </Link>
-            <p className="mt-3 text-sm text-white/60 max-w-xs">
-              Connecting Algeria, one guide at a time.
-            </p>
+            <p className="mt-3 text-sm text-white/60 max-w-xs">{t("footer.tagline")}</p>
           </div>
 
           <FooterCol
-            title="Product"
+            title={t("footer.product")}
             links={[
-              { label: "Find a Guide", to: "/guides" },
-              { label: "Become a Guide", to: "/signup" },
-              { label: "How it works", to: "/faq" },
+              { label: t("footer.findGuide"), to: "/guides" },
+              { label: t("footer.becomeGuide"), to: "/signup" },
+              { label: t("footer.howItWorks"), to: "/faq" },
             ]}
           />
           <FooterCol
-            title="Company"
+            title={t("footer.company")}
             links={[
-              { label: "About", to: "/about" },
-              { label: "Contact", to: "/contact" },
-              { label: "FAQ", to: "/faq" },
+              { label: t("footer.about"), to: "/about" },
+              { label: t("footer.contact"), to: "/contact" },
+              { label: t("footer.faq"), to: "/faq" },
             ]}
           />
           <FooterCol
-            title="Legal"
+            title={t("footer.legal")}
             links={[
-              { label: "Privacy", to: "/privacy" },
-              { label: "Terms", to: "/terms" },
+              { label: t("footer.privacy"), to: "/privacy" },
+              { label: t("footer.terms"), to: "/terms" },
             ]}
           />
         </div>
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/60">© 2026 DALIL. All rights reserved.</p>
+          <p className="text-xs text-white/60">{t("footer.rights")}</p>
           <div className="flex items-center gap-4">
             <Link
               to="/admin-login"
               className="text-xs text-white/50 hover:text-white transition-colors"
             >
-              Admin
+              {t("footer.admin")}
             </Link>
-            <div className="inline-flex items-center rounded-full border border-white/20 text-xs overflow-hidden">
-              <button className="px-3 py-1.5 bg-white/10 text-white" type="button">
-                EN
-              </button>
-              <button className="px-3 py-1.5 text-white/70 hover:text-white" type="button">
-                عربي
-              </button>
+            <div className="rounded-full border border-white/20 bg-white/5 text-white">
+              <LanguageSwitcher variant="compact" />
             </div>
           </div>
         </div>
