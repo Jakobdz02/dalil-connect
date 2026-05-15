@@ -84,7 +84,7 @@ const en: Dict = {
   // Cities
   "home.cities.kicker": "Where we operate",
   "home.cities.title": "Guides across Algeria",
-  "home.cities.subtitle": "From the Mediterranean to the Sahara — local experts in every major destination.",
+  
   // Testimonials
   "home.test.kicker": "Trusted experiences",
   "home.test.title": "What travelers say",
