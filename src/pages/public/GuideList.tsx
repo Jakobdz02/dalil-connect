@@ -156,15 +156,17 @@ export default function GuideList() {
     <PageWrapper showFooter>
       <div className="py-10 space-y-6">
         <div className="text-center">
-          <h1 className="font-display text-4xl text-primary">
-            Find Your Guide in Algeria
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Browse verified local guides across the country.
-          </p>
+          <h1 className="font-display text-4xl text-primary">{t("guides.title")}</h1>
+          <p className="text-muted-foreground mt-2">{t("guides.subtitle")}</p>
         </div>
 
         <AIMatchingBanner />
+
+        {usingSamples && (
+          <div className="max-w-3xl mx-auto rounded-lg border border-accent/30 bg-accent/10 px-4 py-2 text-xs text-foreground/80 text-center">
+            {t("guides.sampleNotice")}
+          </div>
+        )}
 
         {/* Search */}
         <div className="max-w-xl mx-auto relative">
@@ -172,7 +174,7 @@ export default function GuideList() {
           <Input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search by name or wilaya"
+            placeholder={t("guides.searchPh")}
             className="ps-9 pe-9 h-11 rounded-full"
           />
           {searchInput && (
@@ -189,16 +191,15 @@ export default function GuideList() {
 
         {/* Hierarchical filters */}
         <div className="max-w-4xl mx-auto space-y-3">
-          {/* Row 1: language → location → category */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="text-xs font-medium text-muted-foreground ml-1 mb-1 block">
-                1 · Language
+                {t("guides.filter.language")}
               </label>
               <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="w-full"><SelectValue placeholder="All Languages" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder={t("guides.allLanguages")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL}>All Languages</SelectItem>
+                  <SelectItem value={ALL}>{t("guides.allLanguages")}</SelectItem>
                   {LANGUAGES.map((l) => (
                     <SelectItem key={l.code} value={l.code}>
                       {l.flag} {l.name}
@@ -210,12 +211,12 @@ export default function GuideList() {
 
             <div>
               <label className="text-xs font-medium text-muted-foreground ml-1 mb-1 block">
-                2 · Location
+                {t("guides.filter.location")}
               </label>
               <Select value={city} onValueChange={setCity}>
-                <SelectTrigger className="w-full"><SelectValue placeholder="All Wilayas" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder={t("guides.allWilayas")} /></SelectTrigger>
                 <SelectContent className="max-h-72">
-                  <SelectItem value={ALL}>All Wilayas</SelectItem>
+                  <SelectItem value={ALL}>{t("guides.allWilayas")}</SelectItem>
                   {WILAYAS.map((w) => (
                     <SelectItem key={w} value={w}>{w}</SelectItem>
                   ))}
@@ -225,12 +226,12 @@ export default function GuideList() {
 
             <div>
               <label className="text-xs font-medium text-muted-foreground ml-1 mb-1 block">
-                3 · Category
+                {t("guides.filter.category")}
               </label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-full"><SelectValue placeholder="All Categories" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder={t("guides.allCategories")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL}>All Categories</SelectItem>
+                  <SelectItem value={ALL}>{t("guides.allCategories")}</SelectItem>
                   {GUIDE_CATEGORIES.map((c) => (
                     <SelectItem key={c} value={c}>{GUIDE_CATEGORY_LABELS[c as GuideCategory]}</SelectItem>
                   ))}
@@ -239,11 +240,10 @@ export default function GuideList() {
             </div>
           </div>
 
-          {/* Row 2: specialization (only when a category with specs is selected) */}
           {activeCategory && specGroups.length > 0 && (
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 sm:p-4 animate-in fade-in slide-in-from-top-1">
               <label className="text-xs font-medium text-primary ml-1 mb-1 block">
-                4 · Specialization · {GUIDE_CATEGORY_LABELS[activeCategory]}
+                4 · {t("guides.filter.specialization")} · {GUIDE_CATEGORY_LABELS[activeCategory]}
               </label>
 
               <Popover open={specOpen} onOpenChange={setSpecOpen}>
@@ -255,23 +255,23 @@ export default function GuideList() {
                     className="w-full justify-between bg-background"
                   >
                     <span className={cn("truncate", subcategory === ALL && "text-muted-foreground")}>
-                      {subcategory === ALL ? "All specializations" : subcategory}
+                      {subcategory === ALL ? t("guides.allSpecs") : subcategory}
                     </span>
                     <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                   <Command>
-                    <CommandInput placeholder={`Search ${totalSpecCount} specializations...`} />
+                    <CommandInput placeholder={t("guides.searchSpecs")} />
                     <CommandList className="max-h-72">
-                      <CommandEmpty>No specialization found.</CommandEmpty>
+                      <CommandEmpty>{t("guides.noSpec")}</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
                           value="all specializations"
                           onSelect={() => { setSubcategory(ALL); setSpecOpen(false); }}
                         >
                           <Check className={cn("mr-2 h-4 w-4", subcategory === ALL ? "opacity-100" : "opacity-0")} />
-                          All specializations
+                          {t("guides.allSpecs")}
                         </CommandItem>
                       </CommandGroup>
                       {specGroups.map((group, idx) => (
@@ -306,29 +306,28 @@ export default function GuideList() {
                 onClick={clearFilters}
                 className="text-sm text-primary hover:underline"
               >
-                Clear all filters
+                {t("guides.clearFilters")}
               </button>
             </div>
           )}
         </div>
 
-        {/* Results */}
         {loading ? (
           <LoadingSpinner fullPage />
         ) : (
           <>
             <div className="text-sm text-muted-foreground text-center">
-              {filtered.length} {filtered.length === 1 ? "guide" : "guides"} found
+              {filtered.length} {filtered.length === 1 ? t("guides.guide") : t("guides.guides")} {t("guides.found")}
             </div>
 
             {filtered.length === 0 ? (
               <EmptyState
                 icon={UserX}
-                title="No guides found for these filters"
+                title={t("guides.empty.title")}
                 description={
                   subcategory !== ALL
-                    ? "No guides match this specialization in the selected location. Try a different specialization, location, or language."
-                    : "Try adjusting your filters."
+                    ? t("guides.empty.descSpec")
+                    : t("guides.empty.desc")
                 }
               />
             ) : (
