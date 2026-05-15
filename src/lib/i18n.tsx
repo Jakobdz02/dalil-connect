@@ -323,7 +323,7 @@ const fr: Dict = {
   "home.featured.browseAll": "Voir tous les guides",
   "home.cities.kicker": "Où nous opérons",
   "home.cities.title": "Des guides partout en Algérie",
-  "home.cities.subtitle": "De la Méditerranée au Sahara — des experts locaux dans chaque grande destination.",
+  "home.cities.subtitle": "Partout en Algérie — des experts locaux dans chacune des 48 wilayas.",
   "home.test.kicker": "Expériences de confiance",
   "home.test.title": "Ce que disent les voyageurs",
   "home.test.t1Body": "Mon guide à Alger a fait revivre la casbah. Je me suis sentie en sécurité, accueillie, et j'ai appris plus en un jour qu'en une semaine de guides papier.",
