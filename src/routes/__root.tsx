@@ -12,6 +12,7 @@ import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 import { Toaster } from "@/components/ui/sonner";
 import { RECAPTCHA_SITE_KEY } from "@/lib/recaptcha";
+import { I18nProvider } from "@/lib/i18n";
 
 import appCss from "../styles.css?url";
 
@@ -126,8 +127,10 @@ function RootComponent() {
         reCaptchaKey={RECAPTCHA_SITE_KEY}
         scriptProps={{ async: true, defer: true }}
       >
-        <Outlet />
-        <Toaster richColors position="top-right" />
+        <I18nProvider>
+          <Outlet />
+          <Toaster richColors position="top-right" />
+        </I18nProvider>
       </GoogleReCaptchaProvider>
     </QueryClientProvider>
   );

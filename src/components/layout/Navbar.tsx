@@ -6,6 +6,8 @@ import { useRole } from "@/hooks/useRole";
 import { useProfile } from "@/hooks/useProfile";
 import { Avatar } from "@/components/shared/Avatar";
 import { Button } from "@/components/shared/Button";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { useI18n } from "@/lib/i18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,27 +20,28 @@ import type { UserRole } from "@/types";
 
 type NavLink = { label: string; to: string };
 
-const LINKS_BY_ROLE: Record<UserRole | "guest", NavLink[]> = {
-  guest: [],
-  seeker: [
-    { label: "Explore Map", to: "/map" },
-    { label: "Find a Guide", to: "/guides" },
-    { label: "My Bookings", to: "/bookings" },
-  ],
-  guide: [
-    { label: "Explore Map", to: "/map" },
-    { label: "Find a Guide", to: "/guides" },
-    { label: "Bookings", to: "/guide/bookings" },
-  ],
-  admin: [{ label: "Admin Panel", to: "/admin" }],
-};
-
 export function Navbar() {
   const { user, signOut } = useAuth();
   const { role } = useRole();
   const { profile } = useProfile();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
+
+  const LINKS_BY_ROLE: Record<UserRole | "guest", NavLink[]> = {
+    guest: [],
+    seeker: [
+      { label: t("nav.exploreMap"), to: "/map" },
+      { label: t("nav.findGuide"), to: "/guides" },
+      { label: t("nav.myBookings"), to: "/bookings" },
+    ],
+    guide: [
+      { label: t("nav.exploreMap"), to: "/map" },
+      { label: t("nav.findGuide"), to: "/guides" },
+      { label: t("nav.bookings"), to: "/guide/bookings" },
+    ],
+    admin: [{ label: t("nav.adminPanel"), to: "/admin" }],
+  };
 
   const links = LINKS_BY_ROLE[user && role ? role : "guest"];
 
@@ -72,6 +75,8 @@ export function Navbar() {
             </Link>
           ))}
 
+          <LanguageSwitcher />
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="ms-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
@@ -88,11 +93,11 @@ export function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/profile" })}>
                   <UserIcon className="h-4 w-4 me-2" />
-                  Profile Settings
+                  {t("nav.profile")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 me-2" />
-                  Sign out
+                  {t("nav.signout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -102,10 +107,10 @@ export function Navbar() {
                 to="/login"
                 className="text-sm text-foreground hover:text-primary transition-colors px-3 py-2"
               >
-                Login
+                {t("nav.login")}
               </Link>
               <Button size="sm" onClick={() => navigate({ to: "/signup" })}>
-                Sign Up
+                {t("nav.signup")}
               </Button>
             </>
           )}
@@ -137,6 +142,10 @@ export function Navbar() {
               </Link>
             ))}
             <div className="border-t border-border my-2" />
+            <div className="px-3 py-1">
+              <LanguageSwitcher variant="compact" />
+            </div>
+            <div className="border-t border-border my-2" />
             {user ? (
               <>
                 <div className="flex items-center gap-3 px-3 py-2">
@@ -152,14 +161,14 @@ export function Navbar() {
                   onClick={() => setOpen(false)}
                   className="text-sm text-foreground hover:bg-muted rounded-md px-3 py-2"
                 >
-                  Profile Settings
+                  {t("nav.profile")}
                 </Link>
                 <button
                   type="button"
                   onClick={handleSignOut}
                   className="text-start text-sm text-foreground hover:bg-muted rounded-md px-3 py-2"
                 >
-                  Sign out
+                  {t("nav.signout")}
                 </button>
               </>
             ) : (
@@ -169,14 +178,14 @@ export function Navbar() {
                   onClick={() => setOpen(false)}
                   className="text-sm text-foreground hover:bg-muted rounded-md px-3 py-2"
                 >
-                  Login
+                  {t("nav.login")}
                 </Link>
                 <Link
                   to="/signup"
                   onClick={() => setOpen(false)}
                   className="text-sm font-medium text-primary hover:bg-muted rounded-md px-3 py-2"
                 >
-                  Sign Up
+                  {t("nav.signup")}
                 </Link>
               </>
             )}
