@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { useProfile } from "@/hooks/useProfile";
 import { Avatar } from "@/components/shared/Avatar";
-import { Button } from "@/components/shared/Button";
+import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useI18n } from "@/lib/i18n";
 import {
