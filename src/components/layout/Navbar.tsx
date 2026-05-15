@@ -6,6 +6,8 @@ import { useRole } from "@/hooks/useRole";
 import { useProfile } from "@/hooks/useProfile";
 import { Avatar } from "@/components/shared/Avatar";
 import { Button } from "@/components/shared/Button";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { useI18n } from "@/lib/i18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
