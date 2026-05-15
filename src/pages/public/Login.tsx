@@ -14,6 +14,7 @@ import { useI18n } from "@/lib/i18n";
 import type { UserRole } from "@/types";
 
 export default function Login() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
   const search = useSearch({ from: "/login" }) as { redirect?: string };
