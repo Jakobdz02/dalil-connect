@@ -75,6 +75,8 @@ export function Navbar() {
             </Link>
           ))}
 
+          <LanguageSwitcher />
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="ms-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
@@ -91,11 +93,11 @@ export function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/profile" })}>
                   <UserIcon className="h-4 w-4 me-2" />
-                  Profile Settings
+                  {t("nav.profile")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 me-2" />
-                  Sign out
+                  {t("nav.signout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -105,10 +107,10 @@ export function Navbar() {
                 to="/login"
                 className="text-sm text-foreground hover:text-primary transition-colors px-3 py-2"
               >
-                Login
+                {t("nav.login")}
               </Link>
               <Button size="sm" onClick={() => navigate({ to: "/signup" })}>
-                Sign Up
+                {t("nav.signup")}
               </Button>
             </>
           )}
