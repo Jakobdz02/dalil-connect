@@ -10,9 +10,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { verifyRecaptcha } from "@/lib/recaptcha.functions";
 import { HOME_FOR_ROLE } from "@/lib/auth-redirect";
+import { useI18n } from "@/lib/i18n";
 import type { UserRole } from "@/types";
 
 export default function Login() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
   const search = useSearch({ from: "/login" }) as { redirect?: string };
@@ -59,7 +61,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setSubmitting(false);
     if (error) {
-      setErrorMsg("Invalid email or password");
+      setErrorMsg(t("login.invalid"));
       return;
     }
   };
@@ -77,14 +79,14 @@ export default function Login() {
         </Link>
 
         <div className="rounded-2xl border bg-card p-7 shadow-card">
-          <h1 className="font-display text-3xl text-foreground">Welcome back</h1>
+          <h1 className="font-display text-3xl text-foreground">{t("login.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Log in to plan your next discovery.
+            {t("login.subtitle")}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("login.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -95,7 +97,15 @@ export default function Login() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">{t("login.password")}</Label>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-primary hover:underline"
+                >
+                  {t("login.forgot")}
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -113,14 +123,14 @@ export default function Login() {
               className="w-full h-11 rounded-full"
               disabled={submitting}
             >
-              {submitting ? "Logging in…" : "Log in"}
+              {submitting ? t("login.submitting") : t("login.submit")}
             </Button>
           </form>
 
           <p className="text-sm text-muted-foreground text-center mt-6">
-            New to DALIL?{" "}
+            {t("login.new")}{" "}
             <Link to="/signup" className="text-primary font-medium hover:underline">
-              Create an account
+              {t("login.create")}
             </Link>
           </p>
         </div>

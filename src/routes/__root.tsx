@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Dalil Dz" },
       { property: "og:description", content: "Algeria Guide Connect is a marketplace linking international visitors with local Algerian guides." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Dalil Dz" },
       { name: "twitter:description", content: "Algeria Guide Connect is a marketplace linking international visitors with local Algerian guides." },

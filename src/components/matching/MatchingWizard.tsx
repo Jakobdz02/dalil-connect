@@ -14,30 +14,19 @@ import {
 } from "@/components/ui/select";
 import { LANGUAGES } from "@/lib/algeriaData";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 import type {
   LanguageLevel, SeekerProfile, SeekerSector, SessionType,
 } from "@/lib/matchingEngine";
 
-const SECTORS: { id: SeekerSector; label: string; icon: typeof Sparkles; desc: string }[] = [
-  { id: "academic", label: "Academic", icon: GraduationCap, desc: "University, scholarships, study" },
-  { id: "tourism", label: "Tourism", icon: MapPin, desc: "Travel, sightseeing, culture" },
-  { id: "investment", label: "Investment", icon: Briefcase, desc: "Business, real estate, trade" },
-  { id: "general", label: "General", icon: Sparkles, desc: "Everyday help & orientation" },
-];
-
 const LEVELS: LanguageLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
-
-const SESSION_TYPES: { id: SessionType; label: string; icon: typeof Video }[] = [
-  { id: "video", label: "Video", icon: Video },
-  { id: "chat", label: "Chat", icon: MessageSquare },
-  { id: "inperson", label: "In-person", icon: Users },
-];
 
 interface Props {
   onComplete: (profile: SeekerProfile) => void;
 }
 
 export function MatchingWizard({ onComplete }: Props) {
+  const { t } = useI18n();
   const [step, setStep] = useState(0);
   const [sector, setSector] = useState<SeekerSector | null>(null);
   const [language, setLanguage] = useState<string>("");
@@ -46,6 +35,19 @@ export function MatchingWizard({ onComplete }: Props) {
   const [date, setDate] = useState<Date | undefined>();
   const [budget, setBudget] = useState<number>(5000);
   const [description, setDescription] = useState("");
+
+  const SECTORS: { id: SeekerSector; label: string; icon: typeof Sparkles; desc: string }[] = [
+    { id: "academic", label: t("match.sector.academic"), icon: GraduationCap, desc: t("match.sector.academicDesc") },
+    { id: "tourism", label: t("match.sector.tourism"), icon: MapPin, desc: t("match.sector.tourismDesc") },
+    { id: "investment", label: t("match.sector.investment"), icon: Briefcase, desc: t("match.sector.investmentDesc") },
+    { id: "general", label: t("match.sector.general"), icon: Sparkles, desc: t("match.sector.generalDesc") },
+  ];
+
+  const SESSION_TYPES: { id: SessionType; label: string; icon: typeof Video }[] = [
+    { id: "video", label: t("match.session.video"), icon: Video },
+    { id: "chat", label: t("match.session.chat"), icon: MessageSquare },
+    { id: "inperson", label: t("match.session.inperson"), icon: Users },
+  ];
 
   const total = 3;
   const progress = ((step + 1) / total) * 100;
@@ -72,9 +74,9 @@ export function MatchingWizard({ onComplete }: Props) {
     <div className="max-w-2xl mx-auto bg-card border rounded-2xl shadow-card p-6 sm:p-8 space-y-6">
       {/* Progress */}
       <div className="space-y-2">
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Step {step + 1} of {total}</span>
-          <span>{Math.round(progress)}%</span>
+        <div className="flex justify-between items-center text-xs text-muted-foreground gap-4">
+          <span>{t("match.step")} {step + 1} {t("match.of")} {total}</span>
+          <span className="tabular-nums">{Math.round(progress)}%</span>
         </div>
         <div className="h-2 bg-muted rounded-full overflow-hidden">
           <div
@@ -88,8 +90,8 @@ export function MatchingWizard({ onComplete }: Props) {
       {step === 0 && (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
           <div>
-            <h2 className="font-display text-2xl text-primary">What do you need help with?</h2>
-            <p className="text-sm text-muted-foreground mt-1">Pick the area where you need a guide.</p>
+            <h2 className="font-display text-2xl text-primary">{t("match.s1.title")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("match.s1.subtitle")}</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {SECTORS.map((s) => {
@@ -119,14 +121,14 @@ export function MatchingWizard({ onComplete }: Props) {
       {step === 1 && (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
           <div>
-            <h2 className="font-display text-2xl text-primary">Your language preference</h2>
-            <p className="text-sm text-muted-foreground mt-1">We'll match guides who speak your language.</p>
+            <h2 className="font-display text-2xl text-primary">{t("match.s2.title")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("match.s2.subtitle")}</p>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Language</label>
+            <label className="text-xs font-medium text-muted-foreground">{t("match.language")}</label>
             <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger><SelectValue placeholder="Choose a language" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t("match.languagePh")} /></SelectTrigger>
               <SelectContent>
                 {LANGUAGES.map((l) => (
                   <SelectItem key={l.code} value={l.code}>
@@ -138,7 +140,7 @@ export function MatchingWizard({ onComplete }: Props) {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Proficiency level needed</label>
+            <label className="text-xs font-medium text-muted-foreground">{t("match.level")}</label>
             <div className="grid grid-cols-6 gap-2">
               {LEVELS.map((lv) => (
                 <button
@@ -157,7 +159,7 @@ export function MatchingWizard({ onComplete }: Props) {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Session type</label>
+            <label className="text-xs font-medium text-muted-foreground">{t("match.sessionType")}</label>
             <div className="grid grid-cols-3 gap-2">
               {SESSION_TYPES.map((s) => {
                 const Icon = s.icon;
@@ -186,12 +188,12 @@ export function MatchingWizard({ onComplete }: Props) {
       {step === 2 && (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
           <div>
-            <h2 className="font-display text-2xl text-primary">When are you available?</h2>
-            <p className="text-sm text-muted-foreground mt-1">All optional — helps us refine the match.</p>
+            <h2 className="font-display text-2xl text-primary">{t("match.s3.title")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("match.s3.subtitle")}</p>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Preferred date</label>
+            <label className="text-xs font-medium text-muted-foreground">{t("match.preferredDate")}</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -199,7 +201,7 @@ export function MatchingWizard({ onComplete }: Props) {
                   className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
                 >
                   <CalendarIcon className="me-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : "Pick a date (optional)"}
+                  {date ? format(date, "PPP") : t("match.pickDate")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -217,7 +219,7 @@ export function MatchingWizard({ onComplete }: Props) {
 
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-xs font-medium text-muted-foreground">Budget per hour (DZD)</label>
+              <label className="text-xs font-medium text-muted-foreground">{t("match.budget")}</label>
               <span className="text-xs font-semibold text-primary">{budget.toLocaleString()} DZD</span>
             </div>
             <Slider
@@ -231,12 +233,12 @@ export function MatchingWizard({ onComplete }: Props) {
 
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground">
-              Describe your situation briefly
+              {t("match.describe")}
             </label>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. I'm moving to Algiers next month and need help with university enrollment..."
+              placeholder={t("match.describePh")}
               rows={4}
             />
           </div>
@@ -245,21 +247,24 @@ export function MatchingWizard({ onComplete }: Props) {
 
       {/* Footer buttons */}
       <div className="flex items-center justify-between pt-2">
-        <Button
-          variant="ghost"
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
-          disabled={step === 0}
-        >
-          <ArrowLeft className="h-4 w-4 me-1" /> Back
-        </Button>
+        {step > 0 ? (
+          <Button
+            variant="ghost"
+            onClick={() => setStep((s) => Math.max(0, s - 1))}
+          >
+            <ArrowLeft className="h-4 w-4 me-1" /> {t("match.back")}
+          </Button>
+        ) : (
+          <span />
+        )}
 
         {step < total - 1 ? (
           <Button onClick={() => setStep((s) => s + 1)} disabled={!canNext}>
-            Next <ArrowRight className="h-4 w-4 ms-1" />
+            {t("match.next")} <ArrowRight className="h-4 w-4 ms-1" />
           </Button>
         ) : (
           <Button onClick={submit} disabled={!sector || !language}>
-            <Wand2 className="h-4 w-4 me-1" /> Find My Guide
+            <Wand2 className="h-4 w-4 me-1" /> {t("match.findGuide")}
           </Button>
         )}
       </div>

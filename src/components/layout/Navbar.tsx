@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { useProfile } from "@/hooks/useProfile";
 import { Avatar } from "@/components/shared/Avatar";
-import { Button } from "@/components/shared/Button";
+import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -102,17 +102,18 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
-              <Link
-                to="/login"
-                className="text-sm text-foreground hover:text-primary transition-colors px-3 py-2"
+            <div className="flex items-center gap-2 ms-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate({ to: "/login" })}
               >
                 {t("nav.login")}
-              </Link>
+              </Button>
               <Button size="sm" onClick={() => navigate({ to: "/signup" })}>
                 {t("nav.signup")}
               </Button>
-            </>
+            </div>
           )}
         </nav>
 
