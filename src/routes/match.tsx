@@ -10,6 +10,8 @@ export const Route = createFileRoute("/match")({
     meta: [
       { title: "Smart Match — AI Guide Recommendations | DALIL" },
       { name: "description", content: "Let AI find your perfect verified guide in Algeria based on language, expertise, rating and availability." },
+      { property: "og:title", content: "Smart Match — AI Guide Recommendations | DALIL" },
+      { property: "og:description", content: "Let AI find your perfect verified guide in Algeria based on language, expertise, rating and availability." },
     ],
   }),
   component: MatchPage,
