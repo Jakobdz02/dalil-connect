@@ -468,7 +468,7 @@ const de: Dict = {
   "home.featured.browseAll": "Alle Guides ansehen",
   "home.cities.kicker": "Wo wir tätig sind",
   "home.cities.title": "Guides in ganz Algerien",
-  "home.cities.subtitle": "Vom Mittelmeer bis zur Sahara — lokale Experten in jedem Reiseziel.",
+  "home.cities.subtitle": "In ganz Algerien — lokale Experten in jeder der 48 Wilayas.",
   "home.test.kicker": "Vertrauenswürdige Erlebnisse",
   "home.test.title": "Was Reisende sagen",
   "home.test.t1Body": "Mein Guide in Algier hat die Kasbah zum Leben erweckt. Sicher, willkommen, und in einem Tag mehr gelernt als in einer Woche mit Reiseführern.",
