@@ -20,27 +20,28 @@ import type { UserRole } from "@/types";
 
 type NavLink = { label: string; to: string };
 
-const LINKS_BY_ROLE: Record<UserRole | "guest", NavLink[]> = {
-  guest: [],
-  seeker: [
-    { label: "Explore Map", to: "/map" },
-    { label: "Find a Guide", to: "/guides" },
-    { label: "My Bookings", to: "/bookings" },
-  ],
-  guide: [
-    { label: "Explore Map", to: "/map" },
-    { label: "Find a Guide", to: "/guides" },
-    { label: "Bookings", to: "/guide/bookings" },
-  ],
-  admin: [{ label: "Admin Panel", to: "/admin" }],
-};
-
 export function Navbar() {
   const { user, signOut } = useAuth();
   const { role } = useRole();
   const { profile } = useProfile();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
+
+  const LINKS_BY_ROLE: Record<UserRole | "guest", NavLink[]> = {
+    guest: [],
+    seeker: [
+      { label: t("nav.exploreMap"), to: "/map" },
+      { label: t("nav.findGuide"), to: "/guides" },
+      { label: t("nav.myBookings"), to: "/bookings" },
+    ],
+    guide: [
+      { label: t("nav.exploreMap"), to: "/map" },
+      { label: t("nav.findGuide"), to: "/guides" },
+      { label: t("nav.bookings"), to: "/guide/bookings" },
+    ],
+    admin: [{ label: t("nav.adminPanel"), to: "/admin" }],
+  };
 
   const links = LINKS_BY_ROLE[user && role ? role : "guest"];
 
