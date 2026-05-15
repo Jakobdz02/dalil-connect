@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { verifyRecaptcha } from "@/lib/recaptcha.functions";
 import { HOME_FOR_ROLE } from "@/lib/auth-redirect";
+import { useI18n } from "@/lib/i18n";
 import type { UserRole } from "@/types";
 
 export default function Login() {
