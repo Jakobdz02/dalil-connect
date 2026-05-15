@@ -155,6 +155,9 @@ export default function Signup() {
                 value={dob}
                 onChange={(e) => setDob(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                You must be 18 years or older to register.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
