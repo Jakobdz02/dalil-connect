@@ -89,7 +89,9 @@
 
   --border: oklch(0.9 0.012 80);
   --input: oklch(0.9 0.012 80);
-  --ring: oklch(0.38 0.058 175);
+  --ring: oklch(0.32 0.065 165);
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  --gradient-prestige: linear-gradient(135deg, oklch(0.32 0.065 165), oklch(0.48 0.10 165) 60%, var(--accent));
 
   --sidebar: oklch(0.99 0.004 80);
   --sidebar-foreground: var(--foreground);
