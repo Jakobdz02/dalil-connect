@@ -94,6 +94,7 @@ function MethodCard({
   onDelete: (id: string) => void;
   onSetDefault: (id: string) => void;
 }) {
+  const { t } = useI18n();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const display = method.lastFour
     ? `**** **** **** ${method.lastFour}`
@@ -110,7 +111,7 @@ function MethodCard({
       {method.isDefault && (
         <div className="absolute end-3 top-3 flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">
           <Star className="h-3 w-3 fill-accent" />
-          افتراضي
+          {t("payments.default")}
         </div>
       )}
 
@@ -123,7 +124,7 @@ function MethodCard({
           </div>
           {method.expiryDate && (
             <div className="mt-1 text-xs text-muted-foreground">
-              تنتهي في: <span dir="ltr">{method.expiryDate}</span>
+              {t("payments.expires")} <span dir="ltr">{method.expiryDate}</span>
             </div>
           )}
         </div>
@@ -137,7 +138,7 @@ function MethodCard({
             onClick={() => onSetDefault(method.id)}
             className="text-primary hover:bg-primary-soft"
           >
-            تعيين كافتراضي
+            {t("payments.setDefault")}
           </Button>
         )}
         {method.isDefault ? (
@@ -147,11 +148,11 @@ function MethodCard({
                 <span tabIndex={0}>
                   <Button size="sm" variant="ghost" disabled className="text-destructive">
                     <Trash2 className="h-4 w-4" />
-                    حذف
+                    {t("payments.delete")}
                   </Button>
                 </span>
               </TooltipTrigger>
-              <TooltipContent>عيّن طريقة أخرى كافتراضية أولاً</TooltipContent>
+              <TooltipContent>{t("payments.deleteBlocked")}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         ) : (
@@ -162,30 +163,28 @@ function MethodCard({
             className="text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="h-4 w-4" />
-            حذف
+            {t("payments.delete")}
           </Button>
         )}
       </div>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-right">حذف طريقة الدفع؟</AlertDialogTitle>
-            <AlertDialogDescription className="text-right">
-              لن تتمكن من استخدام {method.label} بعد الحذف. يمكنك إضافتها مرة أخرى لاحقًا.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("payments.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("payments.deleteDesc")}</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row-reverse">
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("payments.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 onDelete(method.id);
-                toast.success("تم الحذف");
+                toast.success(t("payments.deleted"));
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              حذف
+              {t("payments.delete")}
             </AlertDialogAction>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
