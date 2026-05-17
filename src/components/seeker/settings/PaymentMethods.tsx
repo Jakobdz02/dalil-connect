@@ -30,6 +30,7 @@ import { usePaymentMethods } from "@/hooks/usePaymentMethods";
 import type { PaymentMethod, PaymentMethodType } from "@/types/payment";
 import { AddPaymentModal } from "./AddPaymentModal";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n";
 
 function MethodIcon({ type }: { type: PaymentMethodType }) {
   switch (type) {
