@@ -47,6 +47,7 @@ function formatExpiry(v: string) {
 }
 
 export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
+  const { t, dir } = useI18n();
   const [step, setStep] = useState<1 | 2>(1);
   const [type, setType] = useState<PaymentMethodType | null>(null);
   const [cardNumber, setCardNumber] = useState("");
