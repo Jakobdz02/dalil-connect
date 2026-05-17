@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Landmark, CreditCard, Wallet, ArrowRight } from "lucide-react";
 import type { PaymentMethod, PaymentMethodType } from "@/types/payment";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n";
 
 interface Props {
   open: boolean;
