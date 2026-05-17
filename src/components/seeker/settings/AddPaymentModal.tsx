@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Landmark, CreditCard, Wallet, ArrowRight } from "lucide-react";
 import type { PaymentMethod, PaymentMethodType } from "@/types/payment";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n";
 
 interface Props {
   open: boolean;
@@ -46,6 +47,7 @@ function formatExpiry(v: string) {
 }
 
 export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
+  const { t, dir } = useI18n();
   const [step, setStep] = useState<1 | 2>(1);
   const [type, setType] = useState<PaymentMethodType | null>(null);
   const [cardNumber, setCardNumber] = useState("");
@@ -89,10 +91,10 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
 
     if (isCard) {
       const digits = cardNumber.replace(/\s/g, "");
-      if (digits.length !== 16) return toast.error("رقم البطاقة يجب أن يكون 16 رقمًا");
-      if (!holder.trim()) return toast.error("أدخل اسم حامل البطاقة");
-      if (!/^\d{2}\/\d{2}$/.test(expiry)) return toast.error("تاريخ الانتهاء غير صحيح");
-      if (!/^\d{3,4}$/.test(cvv)) return toast.error("رمز CVV غير صحيح");
+      if (digits.length !== 16) return toast.error(t("payments.err.cardLen"));
+      if (!holder.trim()) return toast.error(t("payments.err.holder"));
+      if (!/^\d{2}\/\d{2}$/.test(expiry)) return toast.error(t("payments.err.expiry"));
+      if (!/^\d{3,4}$/.test(cvv)) return toast.error(t("payments.err.cvv"));
       onAdd({
         id: crypto.randomUUID(),
         type,
@@ -104,8 +106,8 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
       });
     } else if (type === "dahabia") {
       const digits = accountNumber.replace(/\s/g, "");
-      if (digits.length !== 16) return toast.error("رقم الحساب يجب أن يكون 16 رقمًا");
-      if (!phone.trim()) return toast.error("أدخل رقم الهاتف");
+      if (digits.length !== 16) return toast.error(t("payments.err.accountLen"));
+      if (!phone.trim()) return toast.error(t("payments.err.phone"));
       onAdd({
         id: crypto.randomUUID(),
         type,
@@ -115,7 +117,7 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
         createdAt: new Date(),
       });
     } else if (type === "paypal") {
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("بريد إلكتروني غير صالح");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error(t("payments.err.email"));
       onAdd({
         id: crypto.randomUUID(),
         type,
@@ -126,19 +128,19 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
       });
     }
 
-    toast.success("تمت إضافة طريقة الدفع بنجاح");
+    toast.success(t("payments.added"));
     close();
   };
 
   return (
     <Dialog open={open} onOpenChange={(o) => (o ? onOpenChange(true) : close())}>
-      <DialogContent className="sm:max-w-md" dir="rtl">
+      <DialogContent className="sm:max-w-md" dir={dir}>
         <DialogHeader>
-          <DialogTitle className="text-right">
-            {step === 1 ? "اختر طريقة الدفع" : "أدخل البيانات"}
+          <DialogTitle>
+            {step === 1 ? t("payments.modal.choose") : t("payments.modal.enter")}
           </DialogTitle>
-          <DialogDescription className="text-right">
-            {step === 1 ? "حدد الوسيلة التي تريد إضافتها" : labelMap[type!]}
+          <DialogDescription>
+            {step === 1 ? t("payments.modal.chooseDesc") : labelMap[type!]}
           </DialogDescription>
         </DialogHeader>
 
@@ -163,7 +165,7 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
         {step === 2 && isCard && (
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>رقم البطاقة</Label>
+              <Label>{t("payments.modal.cardNumber")}</Label>
               <Input
                 inputMode="numeric"
                 value={cardNumber}
@@ -173,12 +175,12 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
               />
             </div>
             <div className="space-y-2">
-              <Label>اسم حامل البطاقة</Label>
+              <Label>{t("payments.modal.holder")}</Label>
               <Input value={holder} onChange={(e) => setHolder(e.target.value)} maxLength={60} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>تاريخ الانتهاء</Label>
+                <Label>{t("payments.modal.expiry")}</Label>
                 <Input
                   value={expiry}
                   onChange={(e) => setExpiry(formatExpiry(e.target.value))}
@@ -187,7 +189,7 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
                 />
               </div>
               <div className="space-y-2">
-                <Label>CVV</Label>
+                <Label>{t("payments.modal.cvv")}</Label>
                 <Input
                   inputMode="numeric"
                   value={cvv}
@@ -203,7 +205,7 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
         {step === 2 && type === "dahabia" && (
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>رقم الحساب (16 رقم)</Label>
+              <Label>{t("payments.modal.account")}</Label>
               <Input
                 inputMode="numeric"
                 value={accountNumber}
@@ -213,7 +215,7 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
               />
             </div>
             <div className="space-y-2">
-              <Label>رقم الهاتف المرتبط</Label>
+              <Label>{t("payments.modal.phone")}</Label>
               <Input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -227,7 +229,7 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
         {step === 2 && type === "paypal" && (
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>البريد الإلكتروني لـ PayPal</Label>
+              <Label>{t("payments.modal.paypalEmail")}</Label>
               <Input
                 type="email"
                 value={email}
@@ -247,25 +249,25 @@ export function AddPaymentModal({ open, onOpenChange, onAdd }: Props) {
               onCheckedChange={(c) => setIsDefault(!!c)}
             />
             <Label htmlFor="default" className="cursor-pointer text-sm font-normal">
-              تعيين كطريقة افتراضية
+              {t("payments.modal.setDefault")}
             </Label>
           </div>
         )}
 
-        <DialogFooter className="flex-row-reverse gap-2 sm:justify-start">
+        <DialogFooter className="gap-2">
           {step === 2 && (
             <>
-              <Button onClick={submit} className="gap-1">
-                {type === "paypal" ? "ربط الحساب" : "إضافة"}
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </Button>
               <Button variant="ghost" onClick={() => setStep(1)}>
-                رجوع
+                {t("payments.modal.back")}
+              </Button>
+              <Button onClick={submit} className="gap-1">
+                {type === "paypal" ? t("payments.modal.link") : t("payments.modal.add")}
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Button>
             </>
           )}
           <Button variant="outline" onClick={close}>
-            إلغاء
+            {t("payments.cancel")}
           </Button>
         </DialogFooter>
       </DialogContent>
