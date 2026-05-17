@@ -195,22 +195,23 @@ function MethodCard({
 export function PaymentMethods() {
   const { methods, addMethod, removeMethod, setDefault, isLoading } = usePaymentMethods();
   const [open, setOpen] = useState(false);
+  const { t, dir } = useI18n();
 
   return (
-    <section dir="rtl" className="space-y-4">
+    <section dir={dir} className="space-y-4">
       <header className="flex items-start gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
           <CreditCard className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="font-display text-2xl text-foreground">طرق الدفع</h2>
-          <p className="text-sm text-muted-foreground">إدارة وسائل الدفع الخاصة بك</p>
+          <h2 className="font-display text-2xl text-foreground">{t("payments.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("payments.subtitle")}</p>
         </div>
       </header>
 
       {isLoading ? (
         <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-          جاري التحميل…
+          {t("payments.loading")}
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -231,7 +232,7 @@ export function PaymentMethods() {
         className="w-full border-dashed border-primary/40 text-primary hover:bg-primary-soft"
       >
         <Plus className="h-4 w-4" />
-        إضافة طريقة دفع جديدة
+        {t("payments.add")}
       </Button>
 
       <div className="flex items-center gap-3 rounded-xl border border-success/30 bg-success/5 p-4">
@@ -239,10 +240,10 @@ export function PaymentMethods() {
           <ShieldCheck className="h-5 w-5" />
         </div>
         <div>
-          <div className="text-sm font-semibold text-foreground">مدفوعاتك محمية بالكامل</div>
+          <div className="text-sm font-semibold text-foreground">{t("payments.protected")}</div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Lock className="h-3 w-3" />
-            تشفير AES-256 · متوافق مع PCI-DSS
+            {t("payments.encryption")}
           </div>
         </div>
       </div>
