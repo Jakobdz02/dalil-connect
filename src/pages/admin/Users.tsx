@@ -7,6 +7,7 @@ import { Avatar } from "@/components/shared/Avatar";
 import { Badge } from "@/components/shared/Badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 
 interface ProfileRow {
@@ -22,6 +23,7 @@ const ROLES: ProfileRow["role"][] = ["seeker", "guide", "admin"];
 
 export default function AdminUsers() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [rows, setRows] = useState<ProfileRow[] | null>(null);
   const [search, setSearch] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -55,30 +57,30 @@ export default function AdminUsers() {
     const { error } = await supabase.from("profiles").update({ role }).eq("id", id);
     setBusyId(null);
     if (error) return toast.error(error.message);
-    toast.success("Role updated");
+    toast.success(t("admin.users.roleUpdated"));
     setRows((prev) => prev?.map((r) => (r.id === id ? { ...r, role } : r)) ?? null);
   };
 
   return (
     <PageWrapper>
-      <div className="py-10 space-y-6">
+      <div dir={dir} className="py-10 space-y-6">
         <div>
-          <h1 className="font-display text-4xl text-primary">User Management</h1>
-          <p className="text-muted-foreground mt-1">View users and adjust their roles</p>
+          <h1 className="font-display text-4xl text-primary">{t("admin.users.title")}</h1>
+          <p className="text-muted-foreground mt-1">{t("admin.users.subtitle")}</p>
         </div>
 
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email…"
+          placeholder={t("admin.users.searchPh")}
           className="w-full sm:max-w-md h-11 rounded-full border border-border bg-card px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
 
         {!filtered ? (
           <LoadingSpinner fullPage />
         ) : filtered.length === 0 ? (
-          <EmptyState icon={UsersIcon} title="No users found" />
+          <EmptyState icon={UsersIcon} title={t("admin.users.empty")} />
         ) : (
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
             <ul className="divide-y divide-border">
@@ -105,7 +107,7 @@ export default function AdminUsers() {
                             : "default"
                       }
                     >
-                      {r.role}
+                      {t(`admin.role.${r.role}`)}
                     </Badge>
                     <select
                       value={r.role}
@@ -114,11 +116,11 @@ export default function AdminUsers() {
                         changeRole(r.id, e.target.value as ProfileRow["role"])
                       }
                       className="h-9 rounded-full border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
-                      title={isSelf ? "You can't change your own role" : "Change role"}
+                      title={isSelf ? t("admin.users.cantSelf") : t("admin.users.changeRole")}
                     >
                       {ROLES.map((role) => (
                         <option key={role} value={role}>
-                          {role}
+                          {t(`admin.role.${role}`)}
                         </option>
                       ))}
                     </select>
