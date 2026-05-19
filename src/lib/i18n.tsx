@@ -1466,11 +1466,49 @@ const STORAGE_KEY = "dalil_lang";
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Initial load: localStorage first, then sync with profile when logged in
   useEffect(() => {
     const saved = (typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY)) as Lang | null;
     if (saved && TRANSLATIONS[saved]) setLangState(saved);
+
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      const uid = data.session?.user?.id ?? null;
+      setUserId(uid);
+      if (uid) loadFromProfile(uid, saved);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      const uid = session?.user?.id ?? null;
+      setUserId(uid);
+      if (uid) loadFromProfile(uid, null);
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const loadFromProfile = async (uid: string, localSaved: Lang | null) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("language_preference")
+      .eq("id", uid)
+      .maybeSingle();
+    const remote = data?.language_preference as Lang | undefined;
+    if (localSaved && TRANSLATIONS[localSaved]) {
+      // Keep local choice authoritative; sync up to profile if differs
+      if (remote !== localSaved) {
+        await supabase.from("profiles").update({ language_preference: localSaved }).eq("id", uid);
+      }
+    } else if (remote && TRANSLATIONS[remote]) {
+      setLangState(remote);
+      try { localStorage.setItem(STORAGE_KEY, remote); } catch {}
+    }
+  };
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -1483,7 +1521,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, l);
     } catch {}
+    if (userId) {
+      supabase.from("profiles").update({ language_preference: l }).eq("id", userId).then(() => {});
+    }
   };
+
 
   const t = (key: string) => TRANSLATIONS[lang][key] ?? TRANSLATIONS.en[key] ?? key;
 
