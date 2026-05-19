@@ -8,10 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgeVerification } from "@/hooks/useAgeVerification";
 import { HOME_FOR_ROLE } from "@/lib/auth-redirect";
+import { useI18n } from "@/lib/i18n";
 
 type SignupRole = "seeker" | "guide";
 
 export default function Signup() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isAgeValid, minAge, isFutureDate } = useAgeVerification();
@@ -75,7 +77,7 @@ export default function Signup() {
       return;
     }
     if (!data.session) {
-      setSuccessMsg("Account created. Please check your email and confirm your account before logging in.");
+      setSuccessMsg(t("signup.success.checkEmail"));
     }
   };
 
