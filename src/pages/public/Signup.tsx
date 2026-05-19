@@ -8,10 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgeVerification } from "@/hooks/useAgeVerification";
 import { HOME_FOR_ROLE } from "@/lib/auth-redirect";
+import { useI18n } from "@/lib/i18n";
 
 type SignupRole = "seeker" | "guide";
 
 export default function Signup() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isAgeValid, minAge, isFutureDate } = useAgeVerification();
@@ -23,6 +25,7 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const dobRef = useRef<HTMLInputElement>(null);
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -39,6 +42,7 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setSuccessMsg(null);
 
     // Age checks
     if (!dob) {
@@ -59,7 +63,7 @@ export default function Signup() {
 
     setSubmitting(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -71,6 +75,9 @@ export default function Signup() {
     if (error) {
       setErrorMsg(error.message);
       return;
+    }
+    if (!data.session) {
+      setSuccessMsg(t("signup.success.checkEmail"));
     }
   };
 
@@ -156,6 +163,11 @@ export default function Signup() {
             {errorMsg && (
               <p className="text-sm text-destructive" role="alert">
                 {errorMsg}
+              </p>
+            )}
+            {successMsg && (
+              <p className="text-sm text-primary" role="status">
+                {successMsg}
               </p>
             )}
             <Button type="submit" className="w-full h-11 rounded-full" disabled={submitting}>
