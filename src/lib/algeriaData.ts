@@ -66,13 +66,18 @@ export interface Language {
 }
 
 export const LANGUAGES: Language[] = [
-  { code: "ar", name: "Arabic — العربية", flag: "🇩🇿" },
+  { code: "ar", name: "Arabic — العربية", flag: "🇸🇦" },
   { code: "fr", name: "French — Français", flag: "🇫🇷" },
   { code: "en", name: "English", flag: "🇬🇧" },
-  { code: "de", name: "German — Deutsch", flag: "🇩🇪" },
+  { code: "es", name: "Spanish — Español", flag: "🇪🇸" },
   { code: "zh", name: "Chinese — 中文", flag: "🇨🇳" },
   { code: "tr", name: "Turkish — Türkçe", flag: "🇹🇷" },
-  { code: "it", name: "Italian — Italiano", flag: "🇮🇹" },
+  { code: "ko", name: "Korean — 한국어", flag: "🇰🇷" },
+  { code: "ru", name: "Russian — Русский", flag: "🇷🇺" },
+  { code: "pt", name: "Portuguese — Português", flag: "🇵🇹" },
+  { code: "ha", name: "Hausa — Harshen Hausa", flag: "🇳🇬" },
+  { code: "wo", name: "Wolof", flag: "🇸🇳" },
+  { code: "sw", name: "Swahili — Kiswahili", flag: "🇰🇪" },
 ];
 
 export function getWilaya(value: string): string {
