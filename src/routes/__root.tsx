@@ -12,7 +12,7 @@ import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 
 import { Toaster } from "@/components/ui/sonner";
 import { RECAPTCHA_SITE_KEY } from "@/lib/recaptcha";
-import { I18nProvider } from "@/lib/i18n";
+import { I18nProvider, useI18n } from "@/lib/i18n";
 
 import appCss from "../styles.css?url";
 
