@@ -65,7 +65,7 @@ const SAMPLE_GUIDES: GuideCardData[] = [
   },
   {
     id: "sample-6", full_name: "Omar Drici", city: "Béjaïa",
-    languages: ["ar", "fr", "kab"], category: "tourism", subcategory: "Kabyle coast & hikes",
+    languages: ["ar", "fr", "es"], category: "tourism", subcategory: "Kabyle coast & hikes",
     description: "Hiking, Kabyle villages, Yemma Gouraya — local stories included.",
     price_per_day: 5000, photo_url: null,
   },

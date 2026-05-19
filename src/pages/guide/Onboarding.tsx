@@ -50,7 +50,7 @@ const STEPS = [
 ] as const;
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const PROFICIENCIES: Proficiency[] = ["basic", "intermediate", "fluent", "native"];
+const PROFICIENCIES: Proficiency[] = ["native", "fluent", "intermediate"];
 
 const KYC_TYPES: { id: DocType; label: string }[] = [
   { id: "id_front", label: "ID Card / Passport — Front" },
