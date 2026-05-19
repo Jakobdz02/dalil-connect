@@ -8,6 +8,7 @@ import { Avatar } from "@/components/shared/Avatar";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 import type { Booking, BookingStatus, GuideProfile } from "@/types";
 
 type RecentBooking = Booking & {
@@ -24,6 +25,7 @@ const statusVariant: Record<BookingStatus, "pending" | "confirmed" | "completed"
 export default function SeekerDashboard() {
   const { profile } = useProfile();
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [guides, setGuides] = useState<GuideCardData[]>([]);
   const [recent, setRecent] = useState<RecentBooking[]>([]);
 
@@ -64,52 +66,50 @@ export default function SeekerDashboard() {
 
   return (
     <PageWrapper>
-      <div className="max-w-6xl mx-auto py-10 space-y-10">
+      <div dir={dir} className="max-w-6xl mx-auto py-10 space-y-10">
         <div>
           <h1 className="font-display text-3xl text-primary">
-            Welcome{profile?.name ? `, ${profile.name}` : ""}
+            {t("seeker.dash.welcome")}{profile?.name ? `, ${profile.name}` : ""}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Discover guides and plan your next experience.
+            {t("seeker.dash.subtitle")}
           </p>
         </div>
 
-        {/* Recent bookings */}
         {recent.length > 0 && (
           <section>
             <div className="flex items-end justify-between mb-4">
-              <h2 className="font-display text-2xl text-foreground">Recent Bookings</h2>
+              <h2 className="font-display text-2xl text-foreground">{t("seeker.dash.recent")}</h2>
               <Link to="/bookings" className="text-sm text-primary hover:underline">
-                View all bookings →
+                {t("seeker.dash.viewAll")}
               </Link>
             </div>
             <div className="space-y-3">
               {recent.map((b) => (
                 <div key={b.id} className="rounded-xl border bg-card p-4 shadow-card flex items-center gap-4">
-                  <Avatar src={b.guide?.photo_url ?? undefined} name={b.guide?.full_name ?? "Guide"} size="md" />
+                  <Avatar src={b.guide?.photo_url ?? undefined} name={b.guide?.full_name ?? t("seeker.bookings.guideFallback")} size="md" />
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-foreground truncate">{b.guide?.full_name ?? "Guide"}</div>
+                    <div className="font-medium text-foreground truncate">{b.guide?.full_name ?? t("seeker.bookings.guideFallback")}</div>
                     <div className="text-sm text-muted-foreground">
                       {new Date(b.date).toLocaleDateString()}
                     </div>
                   </div>
-                  <Badge variant={statusVariant[b.status]}>{b.status}</Badge>
+                  <Badge variant={statusVariant[b.status]}>{t(`status.${b.status}`)}</Badge>
                 </div>
               ))}
             </div>
           </section>
         )}
 
-        {/* Browse */}
         <section>
           <div className="flex items-end justify-between mb-4">
-            <h2 className="font-display text-2xl text-foreground">Browse Guides</h2>
+            <h2 className="font-display text-2xl text-foreground">{t("seeker.dash.browse")}</h2>
             <Link to="/guides" className="text-sm text-primary hover:underline">
-              See all guides →
+              {t("seeker.dash.seeAll")}
             </Link>
           </div>
           {guides.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No guides available yet.</p>
+            <p className="text-sm text-muted-foreground">{t("seeker.dash.noGuides")}</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {guides.map((g) => <GuideCard key={g.id} guide={g} />)}
@@ -117,7 +117,7 @@ export default function SeekerDashboard() {
           )}
           <div className="mt-6">
             <Link to="/guides">
-              <Button variant="ghost">Browse all guides</Button>
+              <Button variant="ghost">{t("seeker.dash.browseAll")}</Button>
             </Link>
           </div>
         </section>

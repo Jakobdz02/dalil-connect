@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
 
 export type Lang = "en" | "fr" | "de" | "ar";
 
@@ -304,6 +306,88 @@ const en: Dict = {
   "payments.err.phone": "Enter phone number",
   "payments.err.email": "Invalid email",
   "payments.added": "Payment method added successfully",
+  // Common
+  "common.cancel": "Cancel",
+  "common.confirm": "Confirm",
+  "common.save": "Save",
+  "common.delete": "Delete",
+  "common.loading": "Loading…",
+  "common.search": "Search",
+  "common.back": "Back",
+  "common.tryAgain": "Try again",
+  "common.goHome": "Go home",
+  // Status
+  "status.pending": "Pending",
+  "status.confirmed": "Confirmed",
+  "status.completed": "Completed",
+  "status.cancelled": "Cancelled",
+  // 404 / error
+  "notfound.title": "Page not found",
+  "notfound.subtitle": "The page you're looking for doesn't exist or has been moved.",
+  "error.title": "This page didn't load",
+  "error.body": "Something went wrong on our end. You can try refreshing or head back home.",
+  // Admin
+  "admin.dashboard.title": "Admin Dashboard",
+  "admin.dashboard.subtitle": "Platform overview and moderation",
+  "admin.stat.users": "Total users",
+  "admin.stat.guides": "Approved guides",
+  "admin.stat.pending": "Pending guides",
+  "admin.stat.bookings": "Total bookings",
+  "admin.reviewGuides": "Review guides",
+  "admin.manageUsers": "Manage users",
+  "admin.users.title": "User Management",
+  "admin.users.subtitle": "View users and adjust their roles",
+  "admin.users.searchPh": "Search by name or email…",
+  "admin.users.empty": "No users found",
+  "admin.users.roleUpdated": "Role updated",
+  "admin.users.cantSelf": "You can't change your own role",
+  "admin.users.changeRole": "Change role",
+  "admin.role.seeker": "Seeker",
+  "admin.role.guide": "Guide",
+  "admin.role.admin": "Admin",
+  // Guide dashboard
+  "guide.dash.hello": "Hello",
+  "guide.dash.subtitle": "Manage your profile, bookings and messages.",
+  "guide.dash.banner.startOnb": "Start your onboarding to apply as a verified guide.",
+  "guide.dash.banner.startBtn": "Start onboarding",
+  "guide.dash.banner.verified": "Verified ✓ Your profile is live and visible to clients.",
+  "guide.dash.banner.rejected": "Your application was rejected.",
+  "guide.dash.banner.reason": "Reason",
+  "guide.dash.banner.editResubmit": "Edit & resubmit",
+  "guide.dash.banner.draft": "Your onboarding is incomplete. Finish it to submit for verification.",
+  "guide.dash.banner.continue": "Continue onboarding",
+  "guide.dash.banner.underReview": "Your application is under review — admins are checking your documents.",
+  "guide.dash.banner.submitted": "Your application is submitted — admins are checking your documents.",
+  "guide.dash.stat.received": "Bookings received",
+  "guide.dash.stat.pending": "Pending requests",
+  "guide.dash.stat.confirmed": "Confirmed bookings",
+  "guide.dash.nav.onboarding": "Onboarding",
+  "guide.dash.nav.bookings": "View Bookings",
+  "guide.dash.nav.messages": "View Messages",
+  "guide.bookings.title": "Booking Requests",
+  "guide.bookings.empty": "No booking requests yet",
+  "guide.bookings.date": "Date:",
+  "guide.bookings.seekerFallback": "Seeker",
+  "guide.bookings.markComplete": "Mark Complete",
+  "guide.bookings.toast.cancelled": "Booking cancelled",
+  "guide.bookings.toast.confirmed": "Booking confirmed",
+  "guide.bookings.toast.completed": "Booking completed",
+  // Seeker dashboard / bookings
+  "seeker.dash.welcome": "Welcome",
+  "seeker.dash.subtitle": "Discover guides and plan your next experience.",
+  "seeker.dash.recent": "Recent Bookings",
+  "seeker.dash.viewAll": "View all bookings →",
+  "seeker.dash.browse": "Browse Guides",
+  "seeker.dash.seeAll": "See all guides →",
+  "seeker.dash.noGuides": "No guides available yet.",
+  "seeker.dash.browseAll": "Browse all guides",
+  "seeker.bookings.title": "My Bookings",
+  "seeker.bookings.empty.title": "No bookings yet",
+  "seeker.bookings.empty.desc": "Find a guide to get started.",
+  "seeker.bookings.browseBtn": "Browse guides",
+  "seeker.bookings.date": "Date:",
+  "seeker.bookings.toast.cancelled": "Booking cancelled",
+  "seeker.bookings.guideFallback": "Guide",
 };
 
 const fr: Dict = {
@@ -582,6 +666,82 @@ const fr: Dict = {
   "payments.err.phone": "Saisissez le numéro de téléphone",
   "payments.err.email": "E-mail invalide",
   "payments.added": "Moyen de paiement ajouté avec succès",
+  "common.cancel": "Annuler",
+  "common.confirm": "Confirmer",
+  "common.save": "Enregistrer",
+  "common.delete": "Supprimer",
+  "common.loading": "Chargement…",
+  "common.search": "Rechercher",
+  "common.back": "Retour",
+  "common.tryAgain": "Réessayer",
+  "common.goHome": "Accueil",
+  "status.pending": "En attente",
+  "status.confirmed": "Confirmée",
+  "status.completed": "Terminée",
+  "status.cancelled": "Annulée",
+  "notfound.title": "Page introuvable",
+  "notfound.subtitle": "La page que vous cherchez n'existe pas ou a été déplacée.",
+  "error.title": "Cette page ne s'est pas chargée",
+  "error.body": "Une erreur est survenue. Vous pouvez réessayer ou revenir à l'accueil.",
+  "admin.dashboard.title": "Tableau de bord administrateur",
+  "admin.dashboard.subtitle": "Vue d'ensemble et modération de la plateforme",
+  "admin.stat.users": "Utilisateurs",
+  "admin.stat.guides": "Guides approuvés",
+  "admin.stat.pending": "Guides en attente",
+  "admin.stat.bookings": "Réservations totales",
+  "admin.reviewGuides": "Vérifier les guides",
+  "admin.manageUsers": "Gérer les utilisateurs",
+  "admin.users.title": "Gestion des utilisateurs",
+  "admin.users.subtitle": "Voir les utilisateurs et ajuster leurs rôles",
+  "admin.users.searchPh": "Rechercher par nom ou e-mail…",
+  "admin.users.empty": "Aucun utilisateur trouvé",
+  "admin.users.roleUpdated": "Rôle mis à jour",
+  "admin.users.cantSelf": "Vous ne pouvez pas modifier votre propre rôle",
+  "admin.users.changeRole": "Changer de rôle",
+  "admin.role.seeker": "Visiteur",
+  "admin.role.guide": "Guide",
+  "admin.role.admin": "Admin",
+  "guide.dash.hello": "Bonjour",
+  "guide.dash.subtitle": "Gérez votre profil, vos réservations et vos messages.",
+  "guide.dash.banner.startOnb": "Commencez votre inscription pour devenir un guide vérifié.",
+  "guide.dash.banner.startBtn": "Commencer l'inscription",
+  "guide.dash.banner.verified": "Vérifié ✓ Votre profil est en ligne et visible.",
+  "guide.dash.banner.rejected": "Votre candidature a été refusée.",
+  "guide.dash.banner.reason": "Motif",
+  "guide.dash.banner.editResubmit": "Modifier et renvoyer",
+  "guide.dash.banner.draft": "Votre inscription est incomplète. Terminez-la pour la soumettre.",
+  "guide.dash.banner.continue": "Continuer l'inscription",
+  "guide.dash.banner.underReview": "Votre candidature est en cours d'examen.",
+  "guide.dash.banner.submitted": "Votre candidature a été soumise.",
+  "guide.dash.stat.received": "Réservations reçues",
+  "guide.dash.stat.pending": "Demandes en attente",
+  "guide.dash.stat.confirmed": "Réservations confirmées",
+  "guide.dash.nav.onboarding": "Inscription",
+  "guide.dash.nav.bookings": "Voir les réservations",
+  "guide.dash.nav.messages": "Voir les messages",
+  "guide.bookings.title": "Demandes de réservation",
+  "guide.bookings.empty": "Aucune demande pour le moment",
+  "guide.bookings.date": "Date :",
+  "guide.bookings.seekerFallback": "Visiteur",
+  "guide.bookings.markComplete": "Marquer comme terminée",
+  "guide.bookings.toast.cancelled": "Réservation annulée",
+  "guide.bookings.toast.confirmed": "Réservation confirmée",
+  "guide.bookings.toast.completed": "Réservation terminée",
+  "seeker.dash.welcome": "Bienvenue",
+  "seeker.dash.subtitle": "Découvrez des guides et planifiez votre prochaine expérience.",
+  "seeker.dash.recent": "Réservations récentes",
+  "seeker.dash.viewAll": "Voir toutes les réservations →",
+  "seeker.dash.browse": "Parcourir les guides",
+  "seeker.dash.seeAll": "Voir tous les guides →",
+  "seeker.dash.noGuides": "Aucun guide disponible pour l'instant.",
+  "seeker.dash.browseAll": "Parcourir tous les guides",
+  "seeker.bookings.title": "Mes réservations",
+  "seeker.bookings.empty.title": "Aucune réservation pour le moment",
+  "seeker.bookings.empty.desc": "Trouvez un guide pour commencer.",
+  "seeker.bookings.browseBtn": "Parcourir les guides",
+  "seeker.bookings.date": "Date :",
+  "seeker.bookings.toast.cancelled": "Réservation annulée",
+  "seeker.bookings.guideFallback": "Guide",
 };
 
 const de: Dict = {
@@ -860,6 +1020,82 @@ const de: Dict = {
   "payments.err.phone": "Telefonnummer eingeben",
   "payments.err.email": "Ungültige E-Mail",
   "payments.added": "Zahlungsmethode erfolgreich hinzugefügt",
+  "common.cancel": "Abbrechen",
+  "common.confirm": "Bestätigen",
+  "common.save": "Speichern",
+  "common.delete": "Löschen",
+  "common.loading": "Laden…",
+  "common.search": "Suchen",
+  "common.back": "Zurück",
+  "common.tryAgain": "Erneut versuchen",
+  "common.goHome": "Startseite",
+  "status.pending": "Ausstehend",
+  "status.confirmed": "Bestätigt",
+  "status.completed": "Abgeschlossen",
+  "status.cancelled": "Storniert",
+  "notfound.title": "Seite nicht gefunden",
+  "notfound.subtitle": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+  "error.title": "Diese Seite konnte nicht geladen werden",
+  "error.body": "Etwas ist schiefgelaufen. Sie können es erneut versuchen oder zur Startseite gehen.",
+  "admin.dashboard.title": "Admin-Dashboard",
+  "admin.dashboard.subtitle": "Plattformübersicht und Moderation",
+  "admin.stat.users": "Nutzer gesamt",
+  "admin.stat.guides": "Bestätigte Guides",
+  "admin.stat.pending": "Ausstehende Guides",
+  "admin.stat.bookings": "Buchungen gesamt",
+  "admin.reviewGuides": "Guides prüfen",
+  "admin.manageUsers": "Nutzer verwalten",
+  "admin.users.title": "Nutzerverwaltung",
+  "admin.users.subtitle": "Nutzer anzeigen und Rollen anpassen",
+  "admin.users.searchPh": "Nach Name oder E-Mail suchen…",
+  "admin.users.empty": "Keine Nutzer gefunden",
+  "admin.users.roleUpdated": "Rolle aktualisiert",
+  "admin.users.cantSelf": "Sie können Ihre eigene Rolle nicht ändern",
+  "admin.users.changeRole": "Rolle ändern",
+  "admin.role.seeker": "Suchender",
+  "admin.role.guide": "Guide",
+  "admin.role.admin": "Admin",
+  "guide.dash.hello": "Hallo",
+  "guide.dash.subtitle": "Verwalten Sie Ihr Profil, Buchungen und Nachrichten.",
+  "guide.dash.banner.startOnb": "Starten Sie Ihr Onboarding, um als verifizierter Guide aufgenommen zu werden.",
+  "guide.dash.banner.startBtn": "Onboarding starten",
+  "guide.dash.banner.verified": "Verifiziert ✓ Ihr Profil ist online und für Kunden sichtbar.",
+  "guide.dash.banner.rejected": "Ihre Bewerbung wurde abgelehnt.",
+  "guide.dash.banner.reason": "Grund",
+  "guide.dash.banner.editResubmit": "Bearbeiten & erneut senden",
+  "guide.dash.banner.draft": "Ihr Onboarding ist unvollständig. Beenden Sie es zur Einreichung.",
+  "guide.dash.banner.continue": "Onboarding fortsetzen",
+  "guide.dash.banner.underReview": "Ihre Bewerbung wird geprüft.",
+  "guide.dash.banner.submitted": "Ihre Bewerbung wurde eingereicht.",
+  "guide.dash.stat.received": "Erhaltene Buchungen",
+  "guide.dash.stat.pending": "Ausstehende Anfragen",
+  "guide.dash.stat.confirmed": "Bestätigte Buchungen",
+  "guide.dash.nav.onboarding": "Onboarding",
+  "guide.dash.nav.bookings": "Buchungen ansehen",
+  "guide.dash.nav.messages": "Nachrichten ansehen",
+  "guide.bookings.title": "Buchungsanfragen",
+  "guide.bookings.empty": "Noch keine Buchungsanfragen",
+  "guide.bookings.date": "Datum:",
+  "guide.bookings.seekerFallback": "Suchender",
+  "guide.bookings.markComplete": "Als abgeschlossen markieren",
+  "guide.bookings.toast.cancelled": "Buchung storniert",
+  "guide.bookings.toast.confirmed": "Buchung bestätigt",
+  "guide.bookings.toast.completed": "Buchung abgeschlossen",
+  "seeker.dash.welcome": "Willkommen",
+  "seeker.dash.subtitle": "Entdecken Sie Guides und planen Sie Ihr nächstes Erlebnis.",
+  "seeker.dash.recent": "Letzte Buchungen",
+  "seeker.dash.viewAll": "Alle Buchungen ansehen →",
+  "seeker.dash.browse": "Guides durchsuchen",
+  "seeker.dash.seeAll": "Alle Guides ansehen →",
+  "seeker.dash.noGuides": "Noch keine Guides verfügbar.",
+  "seeker.dash.browseAll": "Alle Guides ansehen",
+  "seeker.bookings.title": "Meine Buchungen",
+  "seeker.bookings.empty.title": "Noch keine Buchungen",
+  "seeker.bookings.empty.desc": "Finden Sie einen Guide, um zu starten.",
+  "seeker.bookings.browseBtn": "Guides durchsuchen",
+  "seeker.bookings.date": "Datum:",
+  "seeker.bookings.toast.cancelled": "Buchung storniert",
+  "seeker.bookings.guideFallback": "Guide",
 };
 
 const ar: Dict = {
@@ -1138,6 +1374,82 @@ const ar: Dict = {
   "payments.err.phone": "أدخل رقم الهاتف",
   "payments.err.email": "بريد إلكتروني غير صالح",
   "payments.added": "تمت إضافة طريقة الدفع بنجاح",
+  "common.cancel": "إلغاء",
+  "common.confirm": "تأكيد",
+  "common.save": "حفظ",
+  "common.delete": "حذف",
+  "common.loading": "جاري التحميل…",
+  "common.search": "بحث",
+  "common.back": "رجوع",
+  "common.tryAgain": "حاول مرة أخرى",
+  "common.goHome": "العودة للرئيسية",
+  "status.pending": "قيد الانتظار",
+  "status.confirmed": "مؤكدة",
+  "status.completed": "مكتملة",
+  "status.cancelled": "ملغاة",
+  "notfound.title": "الصفحة غير موجودة",
+  "notfound.subtitle": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+  "error.title": "تعذر تحميل هذه الصفحة",
+  "error.body": "حدث خطأ من جانبنا. يمكنك المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية.",
+  "admin.dashboard.title": "لوحة تحكم المسؤول",
+  "admin.dashboard.subtitle": "نظرة عامة على المنصة والإشراف",
+  "admin.stat.users": "إجمالي المستخدمين",
+  "admin.stat.guides": "المرشدون المعتمدون",
+  "admin.stat.pending": "مرشدون قيد المراجعة",
+  "admin.stat.bookings": "إجمالي الحجوزات",
+  "admin.reviewGuides": "مراجعة المرشدين",
+  "admin.manageUsers": "إدارة المستخدمين",
+  "admin.users.title": "إدارة المستخدمين",
+  "admin.users.subtitle": "عرض المستخدمين وتعديل أدوارهم",
+  "admin.users.searchPh": "ابحث بالاسم أو البريد…",
+  "admin.users.empty": "لا يوجد مستخدمون",
+  "admin.users.roleUpdated": "تم تحديث الدور",
+  "admin.users.cantSelf": "لا يمكنك تغيير دورك الخاص",
+  "admin.users.changeRole": "تغيير الدور",
+  "admin.role.seeker": "باحث",
+  "admin.role.guide": "مرشد",
+  "admin.role.admin": "مسؤول",
+  "guide.dash.hello": "مرحباً",
+  "guide.dash.subtitle": "إدارة ملفك الشخصي وحجوزاتك ورسائلك.",
+  "guide.dash.banner.startOnb": "ابدأ التسجيل لتقدّم نفسك كمرشد معتمد.",
+  "guide.dash.banner.startBtn": "بدء التسجيل",
+  "guide.dash.banner.verified": "موثّق ✓ ملفك مرئي للعملاء.",
+  "guide.dash.banner.rejected": "تم رفض طلبك.",
+  "guide.dash.banner.reason": "السبب",
+  "guide.dash.banner.editResubmit": "تعديل وإعادة الإرسال",
+  "guide.dash.banner.draft": "تسجيلك غير مكتمل. أكمله للإرسال للمراجعة.",
+  "guide.dash.banner.continue": "متابعة التسجيل",
+  "guide.dash.banner.underReview": "طلبك قيد المراجعة من قبل المسؤولين.",
+  "guide.dash.banner.submitted": "تم إرسال طلبك للمراجعة.",
+  "guide.dash.stat.received": "الحجوزات المستلمة",
+  "guide.dash.stat.pending": "الطلبات المعلقة",
+  "guide.dash.stat.confirmed": "الحجوزات المؤكدة",
+  "guide.dash.nav.onboarding": "التسجيل",
+  "guide.dash.nav.bookings": "عرض الحجوزات",
+  "guide.dash.nav.messages": "عرض الرسائل",
+  "guide.bookings.title": "طلبات الحجز",
+  "guide.bookings.empty": "لا توجد طلبات حجز بعد",
+  "guide.bookings.date": "التاريخ:",
+  "guide.bookings.seekerFallback": "باحث",
+  "guide.bookings.markComplete": "تمييز كمكتمل",
+  "guide.bookings.toast.cancelled": "تم إلغاء الحجز",
+  "guide.bookings.toast.confirmed": "تم تأكيد الحجز",
+  "guide.bookings.toast.completed": "تم إكمال الحجز",
+  "seeker.dash.welcome": "مرحباً",
+  "seeker.dash.subtitle": "اكتشف مرشدين وخطّط لتجربتك القادمة.",
+  "seeker.dash.recent": "الحجوزات الأخيرة",
+  "seeker.dash.viewAll": "عرض كل الحجوزات →",
+  "seeker.dash.browse": "تصفح المرشدين",
+  "seeker.dash.seeAll": "عرض كل المرشدين →",
+  "seeker.dash.noGuides": "لا يوجد مرشدون متاحون بعد.",
+  "seeker.dash.browseAll": "تصفح كل المرشدين",
+  "seeker.bookings.title": "حجوزاتي",
+  "seeker.bookings.empty.title": "لا توجد حجوزات بعد",
+  "seeker.bookings.empty.desc": "ابحث عن مرشد للبدء.",
+  "seeker.bookings.browseBtn": "تصفح المرشدين",
+  "seeker.bookings.date": "التاريخ:",
+  "seeker.bookings.toast.cancelled": "تم إلغاء الحجز",
+  "seeker.bookings.guideFallback": "مرشد",
 };
 
 const TRANSLATIONS: Record<Lang, Dict> = { en, fr, de, ar };
@@ -1154,11 +1466,49 @@ const STORAGE_KEY = "dalil_lang";
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Initial load: localStorage first, then sync with profile when logged in
   useEffect(() => {
     const saved = (typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY)) as Lang | null;
     if (saved && TRANSLATIONS[saved]) setLangState(saved);
+
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      const uid = data.session?.user?.id ?? null;
+      setUserId(uid);
+      if (uid) loadFromProfile(uid, saved);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      const uid = session?.user?.id ?? null;
+      setUserId(uid);
+      if (uid) loadFromProfile(uid, null);
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const loadFromProfile = async (uid: string, localSaved: Lang | null) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("language_preference")
+      .eq("id", uid)
+      .maybeSingle();
+    const remote = data?.language_preference as Lang | undefined;
+    if (localSaved && TRANSLATIONS[localSaved]) {
+      // Keep local choice authoritative; sync up to profile if differs
+      if (remote !== localSaved) {
+        await supabase.from("profiles").update({ language_preference: localSaved }).eq("id", uid);
+      }
+    } else if (remote && TRANSLATIONS[remote]) {
+      setLangState(remote);
+      try { localStorage.setItem(STORAGE_KEY, remote); } catch {}
+    }
+  };
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -1171,7 +1521,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, l);
     } catch {}
+    if (userId) {
+      supabase.from("profiles").update({ language_preference: l }).eq("id", userId).then(() => {});
+    }
   };
+
 
   const t = (key: string) => TRANSLATIONS[lang][key] ?? TRANSLATIONS.en[key] ?? key;
 

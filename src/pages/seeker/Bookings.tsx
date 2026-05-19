@@ -10,6 +10,7 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 import type { Booking, BookingStatus, GuideProfile } from "@/types";
 
 type Row = Booking & {
@@ -25,6 +26,7 @@ const statusVariant: Record<BookingStatus, "pending" | "confirmed" | "completed"
 
 export default function SeekerBookings() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,25 +56,25 @@ export default function SeekerBookings() {
   const cancel = async (id: string) => {
     const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Booking cancelled");
+    toast.success(t("seeker.bookings.toast.cancelled"));
     load();
   };
 
   return (
     <PageWrapper>
-      <div className="max-w-3xl mx-auto py-10">
-        <h1 className="font-display text-3xl text-primary mb-6">My Bookings</h1>
+      <div dir={dir} className="max-w-3xl mx-auto py-10">
+        <h1 className="font-display text-3xl text-primary mb-6">{t("seeker.bookings.title")}</h1>
 
         {loading ? (
           <LoadingSpinner fullPage />
         ) : rows.length === 0 ? (
           <EmptyState
             icon={CalendarX}
-            title="No bookings yet"
-            description="Find a guide to get started."
+            title={t("seeker.bookings.empty.title")}
+            description={t("seeker.bookings.empty.desc")}
             action={
               <Link to="/guides">
-                <Button>Browse guides</Button>
+                <Button>{t("seeker.bookings.browseBtn")}</Button>
               </Link>
             }
           />
@@ -81,7 +83,7 @@ export default function SeekerBookings() {
             {rows.map((b) => (
               <div key={b.id} className="rounded-xl border bg-card p-4 shadow-card">
                 <div className="flex items-start gap-4">
-                  <Avatar src={b.guide?.photo_url ?? undefined} name={b.guide?.full_name ?? "Guide"} size="lg" />
+                  <Avatar src={b.guide?.photo_url ?? undefined} name={b.guide?.full_name ?? t("seeker.bookings.guideFallback")} size="lg" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <Link
@@ -89,9 +91,9 @@ export default function SeekerBookings() {
                         params={{ id: b.guide_id }}
                         className="font-semibold text-foreground hover:text-primary"
                       >
-                        {b.guide?.full_name ?? "Guide"}
+                        {b.guide?.full_name ?? t("seeker.bookings.guideFallback")}
                       </Link>
-                      <Badge variant={statusVariant[b.status]}>{b.status}</Badge>
+                      <Badge variant={statusVariant[b.status]}>{t(`status.${b.status}`)}</Badge>
                     </div>
                     {b.guide?.city && (
                       <div className="flex items-center gap-1 text-sm text-muted-foreground mt-0.5">
@@ -100,7 +102,7 @@ export default function SeekerBookings() {
                       </div>
                     )}
                     <div className="text-sm text-foreground mt-2">
-                      <span className="text-muted-foreground">Date:</span>{" "}
+                      <span className="text-muted-foreground">{t("seeker.bookings.date")}</span>{" "}
                       {new Date(b.date).toLocaleDateString()}
                     </div>
                     {b.notes && (
@@ -111,7 +113,7 @@ export default function SeekerBookings() {
                 {b.status === "pending" && (
                   <div className="flex justify-end mt-3">
                     <Button variant="ghost" size="sm" onClick={() => cancel(b.id)}>
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                   </div>
                 )}

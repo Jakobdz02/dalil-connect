@@ -9,6 +9,7 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 import type { Booking, BookingStatus, Profile } from "@/types";
 
 type Row = Booking & {
@@ -24,6 +25,7 @@ const statusVariant: Record<BookingStatus, "pending" | "confirmed" | "completed"
 
 export default function GuideBookings() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,34 +64,39 @@ export default function GuideBookings() {
   const update = async (id: string, status: BookingStatus) => {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success(`Booking ${status}`);
+    const toastKey =
+      status === "cancelled" ? "guide.bookings.toast.cancelled"
+      : status === "confirmed" ? "guide.bookings.toast.confirmed"
+      : status === "completed" ? "guide.bookings.toast.completed"
+      : "guide.bookings.toast.confirmed";
+    toast.success(t(toastKey));
     load();
   };
 
   return (
     <PageWrapper>
-      <div className="max-w-3xl mx-auto py-10">
-        <h1 className="font-display text-3xl text-primary mb-6">Booking Requests</h1>
+      <div dir={dir} className="max-w-3xl mx-auto py-10">
+        <h1 className="font-display text-3xl text-primary mb-6">{t("guide.bookings.title")}</h1>
 
         {loading ? (
           <LoadingSpinner fullPage />
         ) : rows.length === 0 ? (
-          <EmptyState icon={CalendarX} title="No booking requests yet" />
+          <EmptyState icon={CalendarX} title={t("guide.bookings.empty")} />
         ) : (
           <div className="space-y-3">
             {rows.map((b) => (
               <div key={b.id} className="rounded-xl border bg-card p-4 shadow-card">
                 <div className="flex items-start gap-4">
-                  <Avatar src={b.seeker?.avatar_url ?? undefined} name={b.seeker?.name ?? "Seeker"} size="lg" />
+                  <Avatar src={b.seeker?.avatar_url ?? undefined} name={b.seeker?.name ?? t("guide.bookings.seekerFallback")} size="lg" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <span className="font-semibold text-foreground">
-                        {b.seeker?.name ?? "Seeker"}
+                        {b.seeker?.name ?? t("guide.bookings.seekerFallback")}
                       </span>
-                      <Badge variant={statusVariant[b.status]}>{b.status}</Badge>
+                      <Badge variant={statusVariant[b.status]}>{t(`status.${b.status}`)}</Badge>
                     </div>
                     <div className="text-sm text-foreground mt-1">
-                      <span className="text-muted-foreground">Date:</span>{" "}
+                      <span className="text-muted-foreground">{t("guide.bookings.date")}</span>{" "}
                       {new Date(b.date).toLocaleDateString()}
                     </div>
                     {b.notes && (
@@ -104,16 +111,16 @@ export default function GuideBookings() {
                   {b.status === "pending" && (
                     <>
                       <Button size="sm" variant="ghost" onClick={() => update(b.id, "cancelled")}>
-                        Cancel
+                        {t("common.cancel")}
                       </Button>
                       <Button size="sm" onClick={() => update(b.id, "confirmed")}>
-                        Confirm
+                        {t("common.confirm")}
                       </Button>
                     </>
                   )}
                   {b.status === "confirmed" && (
                     <Button size="sm" onClick={() => update(b.id, "completed")}>
-                      Mark Complete
+                      {t("guide.bookings.markComplete")}
                     </Button>
                   )}
                 </div>
