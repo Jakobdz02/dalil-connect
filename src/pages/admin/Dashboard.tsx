@@ -5,6 +5,7 @@ import { PageWrapper } from "@/components/layout/PageWrapper";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/shared/Button";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 
 type Stats = {
   users: number;
@@ -15,6 +16,7 @@ type Stats = {
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
+  const { t, dir } = useI18n();
 
   useEffect(() => {
     (async () => {
@@ -41,10 +43,10 @@ export default function AdminDashboard() {
 
   return (
     <PageWrapper>
-      <div className="py-10 space-y-8">
+      <div dir={dir} className="py-10 space-y-8">
         <div>
-          <h1 className="font-display text-4xl text-primary">Admin Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Platform overview and moderation</p>
+          <h1 className="font-display text-4xl text-primary">{t("admin.dashboard.title")}</h1>
+          <p className="text-muted-foreground mt-1">{t("admin.dashboard.subtitle")}</p>
         </div>
 
         {!stats ? (
@@ -52,23 +54,23 @@ export default function AdminDashboard() {
         ) : (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard icon={Users} label="Total users" value={stats.users} />
-              <StatCard icon={UserCheck} label="Approved guides" value={stats.guides} />
+              <StatCard icon={Users} label={t("admin.stat.users")} value={stats.users} />
+              <StatCard icon={UserCheck} label={t("admin.stat.guides")} value={stats.guides} />
               <StatCard
                 icon={Clock}
-                label="Pending guides"
+                label={t("admin.stat.pending")}
                 value={stats.pendingGuides}
                 highlight={stats.pendingGuides > 0}
               />
-              <StatCard icon={CalendarCheck} label="Total bookings" value={stats.bookings} />
+              <StatCard icon={CalendarCheck} label={t("admin.stat.bookings")} value={stats.bookings} />
             </div>
 
             <div className="flex flex-wrap gap-3">
               <Link to="/admin/guides">
-                <Button>Review guides ({stats.pendingGuides})</Button>
+                <Button>{t("admin.reviewGuides")} ({stats.pendingGuides})</Button>
               </Link>
               <Link to="/admin/users">
-                <Button variant="ghost">Manage users</Button>
+                <Button variant="ghost">{t("admin.manageUsers")}</Button>
               </Link>
             </div>
           </>
