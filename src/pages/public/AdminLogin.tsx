@@ -1,18 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
-import { verifyRecaptcha } from "@/lib/recaptcha.functions";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { getToken } = useRecaptcha();
-  const verifyFn = useServerFn(verifyRecaptcha);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -26,20 +21,6 @@ export default function AdminLogin() {
     e.preventDefault();
     setErrorMsg(null);
     setSubmitting(true);
-
-    const token = await getToken("admin_login");
-    if (token) {
-      try {
-        const result = await verifyFn({ data: { token, action: "admin_login" } });
-        if (!result.passed) {
-          setErrorMsg("Security check failed. Please try again.");
-          setSubmitting(false);
-          return;
-        }
-      } catch (err) {
-        console.warn("[admin-login] recaptcha verify failed — continuing", err);
-      }
-    }
 
     const lookup = USERNAME_TO_EMAIL[username.trim().toLowerCase()];
     const emailToUse = lookup ?? username.trim();

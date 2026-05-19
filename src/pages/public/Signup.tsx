@@ -1,15 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { Compass, User, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { useAgeVerification } from "@/hooks/useAgeVerification";
-import { verifyRecaptcha } from "@/lib/recaptcha.functions";
 import { HOME_FOR_ROLE } from "@/lib/auth-redirect";
 
 type SignupRole = "seeker" | "guide";
@@ -17,9 +14,7 @@ type SignupRole = "seeker" | "guide";
 export default function Signup() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getToken } = useRecaptcha();
   const { isAgeValid, minAge, isFutureDate } = useAgeVerification();
-  const verifyFn = useServerFn(verifyRecaptcha);
 
   const [role, setRole] = useState<SignupRole>("seeker");
   const [name, setName] = useState("");
@@ -63,19 +58,6 @@ export default function Signup() {
     }
 
     setSubmitting(true);
-
-    // reCAPTCHA v3 — advisory only, so false low scores never block signup.
-    const token = await getToken("signup");
-    if (token) {
-      try {
-        const result = await verifyFn({ data: { token, action: "signup" } });
-        if (!result.passed) {
-          console.warn("[signup] recaptcha returned a low score — continuing", result);
-        }
-      } catch (err) {
-        console.warn("[signup] recaptcha verify failed — continuing", err);
-      }
-    }
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -179,27 +161,6 @@ export default function Signup() {
             <Button type="submit" className="w-full h-11 rounded-full" disabled={submitting}>
               {submitting ? "Creating account…" : "Create account"}
             </Button>
-            <p className="text-[11px] text-muted-foreground text-center">
-              This site is protected by reCAPTCHA and the Google{" "}
-              <a
-                href="https://policies.google.com/privacy"
-                className="underline"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Privacy Policy
-              </a>{" "}
-              and{" "}
-              <a
-                href="https://policies.google.com/terms"
-                className="underline"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Terms of Service
-              </a>{" "}
-              apply.
-            </p>
           </form>
 
           <p className="text-sm text-muted-foreground text-center mt-6">
