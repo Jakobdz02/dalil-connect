@@ -23,6 +23,7 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const dobRef = useRef<HTMLInputElement>(null);
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -39,6 +40,7 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setSuccessMsg(null);
 
     // Age checks
     if (!dob) {
@@ -59,7 +61,7 @@ export default function Signup() {
 
     setSubmitting(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -71,6 +73,9 @@ export default function Signup() {
     if (error) {
       setErrorMsg(error.message);
       return;
+    }
+    if (!data.session) {
+      setSuccessMsg("Account created. Please check your email and confirm your account before logging in.");
     }
   };
 
@@ -156,6 +161,11 @@ export default function Signup() {
             {errorMsg && (
               <p className="text-sm text-destructive" role="alert">
                 {errorMsg}
+              </p>
+            )}
+            {successMsg && (
+              <p className="text-sm text-primary" role="status">
+                {successMsg}
               </p>
             )}
             <Button type="submit" className="w-full h-11 rounded-full" disabled={submitting}>

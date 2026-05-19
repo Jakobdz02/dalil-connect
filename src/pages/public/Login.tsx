@@ -42,7 +42,11 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setSubmitting(false);
     if (error) {
-      setErrorMsg(t("login.invalid"));
+      setErrorMsg(
+        error.code === "email_not_confirmed"
+          ? t("login.emailNotConfirmed")
+          : t("login.invalid"),
+      );
       return;
     }
   };
