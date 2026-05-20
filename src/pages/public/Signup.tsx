@@ -69,7 +69,22 @@ export default function Signup() {
       },
     });
 
-    if (!error && data.user) {
+    if (error) {
+      setSubmitting(false);
+      setErrorMsg(error.message);
+      return;
+    }
+
+    if (!data.session) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        setSubmitting(false);
+        setErrorMsg(signInError.message);
+        return;
+      }
+    }
+
+    if (data.user) {
       const { error: profileError } = await supabase.from("profiles").upsert(
         {
           id: data.user.id,
@@ -89,27 +104,8 @@ export default function Signup() {
       }
     }
 
-    if (error) {
-      setSubmitting(false);
-      setErrorMsg(error.message);
-      return;
-    }
-
-    if (!data.session) {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) {
-        setSubmitting(false);
-        setErrorMsg(signInError.message);
-        return;
-      }
-    }
-
     setSubmitting(false);
-    if (data.session) {
-      navigate({ to: HOME_FOR_ROLE[role] });
-    } else {
-      navigate({ to: HOME_FOR_ROLE[role] });
-    }
+    navigate({ to: HOME_FOR_ROLE[role] });
   };
 
   return (
