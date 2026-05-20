@@ -8,12 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgeVerification } from "@/hooks/useAgeVerification";
 import { HOME_FOR_ROLE } from "@/lib/auth-redirect";
-import { useI18n } from "@/lib/i18n";
 
 type SignupRole = "seeker" | "guide";
 
 export default function Signup() {
-  const { t } = useI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isAgeValid, minAge, isFutureDate } = useAgeVerification();
@@ -25,7 +23,6 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const dobRef = useRef<HTMLInputElement>(null);
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -36,13 +33,13 @@ export default function Signup() {
   }, []);
 
   useEffect(() => {
+    if (submitting) return;
     if (user) navigate({ to: HOME_FOR_ROLE[role] });
-  }, [user, role, navigate]);
+  }, [user, role, submitting, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
-    setSuccessMsg(null);
 
     // Age checks
     if (!dob) {
@@ -71,14 +68,44 @@ export default function Signup() {
         data: { name, role, date_of_birth: dob },
       },
     });
-    setSubmitting(false);
+
     if (error) {
+      setSubmitting(false);
       setErrorMsg(error.message);
       return;
     }
+
     if (!data.session) {
-      setSuccessMsg(t("signup.success.checkEmail"));
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        setSubmitting(false);
+        setErrorMsg(signInError.message);
+        return;
+      }
     }
+
+    if (data.user) {
+      const { error: profileError } = await supabase.from("profiles").upsert(
+        {
+          id: data.user.id,
+          name,
+          email,
+          role,
+          date_of_birth: dob,
+          language_preference: "en",
+        },
+        { onConflict: "id" },
+      );
+
+      if (profileError) {
+        setSubmitting(false);
+        setErrorMsg(profileError.message);
+        return;
+      }
+    }
+
+    setSubmitting(false);
+    navigate({ to: HOME_FOR_ROLE[role] });
   };
 
   return (
@@ -163,11 +190,6 @@ export default function Signup() {
             {errorMsg && (
               <p className="text-sm text-destructive" role="alert">
                 {errorMsg}
-              </p>
-            )}
-            {successMsg && (
-              <p className="text-sm text-primary" role="status">
-                {successMsg}
               </p>
             )}
             <Button type="submit" className="w-full h-11 rounded-full" disabled={submitting}>
