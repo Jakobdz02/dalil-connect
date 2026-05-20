@@ -8,12 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgeVerification } from "@/hooks/useAgeVerification";
 import { HOME_FOR_ROLE } from "@/lib/auth-redirect";
-import { useI18n } from "@/lib/i18n";
 
 type SignupRole = "seeker" | "guide";
 
 export default function Signup() {
-  const { t } = useI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isAgeValid, minAge, isFutureDate } = useAgeVerification();
@@ -69,6 +67,27 @@ export default function Signup() {
         data: { name, role, date_of_birth: dob },
       },
     });
+
+    if (!error && data.user) {
+      const { error: profileError } = await supabase.from("profiles").upsert(
+        {
+          id: data.user.id,
+          name,
+          email,
+          role,
+          date_of_birth: dob,
+          language_preference: "en",
+        },
+        { onConflict: "id" },
+      );
+
+      if (profileError) {
+        setSubmitting(false);
+        setErrorMsg(profileError.message);
+        return;
+      }
+    }
+
     setSubmitting(false);
     if (error) {
       setErrorMsg(error.message);
