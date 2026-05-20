@@ -25,7 +25,6 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const dobRef = useRef<HTMLInputElement>(null);
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -42,7 +41,6 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
-    setSuccessMsg(null);
 
     // Age checks
     if (!dob) {
@@ -76,8 +74,8 @@ export default function Signup() {
       setErrorMsg(error.message);
       return;
     }
-    if (!data.session) {
-      setSuccessMsg(t("signup.success.checkEmail"));
+    if (data.session) {
+      navigate({ to: HOME_FOR_ROLE[role] });
     }
   };
 
@@ -163,11 +161,6 @@ export default function Signup() {
             {errorMsg && (
               <p className="text-sm text-destructive" role="alert">
                 {errorMsg}
-              </p>
-            )}
-            {successMsg && (
-              <p className="text-sm text-primary" role="status">
-                {successMsg}
               </p>
             )}
             <Button type="submit" className="w-full h-11 rounded-full" disabled={submitting}>
