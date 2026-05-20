@@ -33,8 +33,9 @@ export default function Signup() {
   }, []);
 
   useEffect(() => {
+    if (submitting) return;
     if (user) navigate({ to: HOME_FOR_ROLE[role] });
-  }, [user, role, navigate]);
+  }, [user, role, submitting, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,12 +89,25 @@ export default function Signup() {
       }
     }
 
-    setSubmitting(false);
     if (error) {
+      setSubmitting(false);
       setErrorMsg(error.message);
       return;
     }
+
+    if (!data.session) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        setSubmitting(false);
+        setErrorMsg(signInError.message);
+        return;
+      }
+    }
+
+    setSubmitting(false);
     if (data.session) {
+      navigate({ to: HOME_FOR_ROLE[role] });
+    } else {
       navigate({ to: HOME_FOR_ROLE[role] });
     }
   };
