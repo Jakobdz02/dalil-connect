@@ -129,7 +129,6 @@ export default function AlgeriaLeafletMap({ cities, selectedId, onSelect }: Prop
             url="https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
           />
         </LayersControl.Overlay>
-        </LayersControl.Overlay>
         {borders && (
           <LayersControl.Overlay checked name="Country borders">
             <GeoJSON
