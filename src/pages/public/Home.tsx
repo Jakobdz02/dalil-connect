@@ -106,7 +106,7 @@ export default function Home() {
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg" className="rounded-full px-7 h-12 shadow-warm">
-              <Link to="/signup" search={{ role: "seeker" }}>
+              <Link to="/signup">
                 <Compass className="h-4 w-4" />
                 {t("home.findYourGuide")}
               </Link>
@@ -306,7 +306,7 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="rounded-full px-7 h-12 bg-card text-primary hover:bg-card/90">
-              <Link to="/signup" search={{ role: "seeker" }}>{t("home.cta.findGuide")}</Link>
+              <Link to="/signup">{t("home.cta.findGuide")}</Link>
             </Button>
             <Button
               asChild
