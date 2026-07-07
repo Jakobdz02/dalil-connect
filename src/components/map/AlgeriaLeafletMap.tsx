@@ -54,7 +54,32 @@ function buildIcon(city: MapMarker, active: boolean) {
 
 export default function AlgeriaLeafletMap({ cities, selectedId, onSelect }: Props) {
   const [mounted, setMounted] = useState(false);
+  const [borders, setBorders] = useState<FeatureCollection | null>(null);
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    let alive = true;
+    fetch(BORDERS_URL)
+      .then((r) => r.json() as Promise<FeatureCollection>)
+      .then((fc) => {
+        if (!alive) return;
+        // Keep only Algeria, Morocco, Western Sahara as separate features
+        const filtered: FeatureCollection = {
+          type: "FeatureCollection",
+          features: fc.features.filter((f) => {
+            const n = (f.properties as { NAME?: string; ADMIN?: string } | null)?.NAME
+              ?? (f.properties as { ADMIN?: string } | null)?.ADMIN
+              ?? "";
+            return ["Algeria", "Morocco", "W. Sahara", "Western Sahara"].includes(n);
+          }),
+        };
+        setBorders(filtered);
+      })
+      .catch(() => setBorders(null));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   if (!mounted) {
     return (
