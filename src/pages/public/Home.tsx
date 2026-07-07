@@ -306,7 +306,7 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="rounded-full px-7 h-12 bg-card text-primary hover:bg-card/90">
-              <Link to="/guides">{t("home.cta.findGuide")}</Link>
+              <Link to="/signup" search={{ role: "seeker" }}>{t("home.cta.findGuide")}</Link>
             </Button>
             <Button
               asChild
