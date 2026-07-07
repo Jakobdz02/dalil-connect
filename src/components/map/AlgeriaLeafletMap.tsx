@@ -1,8 +1,20 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Tooltip, LayersControl, ZoomControl } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Tooltip, LayersControl, ZoomControl, GeoJSON } from "react-leaflet";
 import L from "leaflet";
+import type { FeatureCollection } from "geojson";
 import "leaflet/dist/leaflet.css";
 import { CITY_IMAGES } from "@/lib/cityImages";
+
+// Country borders shown as separate polygons: Algeria, Morocco, and Western Sahara
+// are displayed as distinct entities (Natural Earth admin_0 treats WSahara as separate).
+const BORDERS_URL =
+  "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson";
+
+const COUNTRY_STYLES: Record<string, L.PathOptions> = {
+  Algeria: { color: "#16a34a", weight: 2.2, fillColor: "#16a34a", fillOpacity: 0.06, dashArray: "" },
+  Morocco: { color: "#dc2626", weight: 1.8, fillColor: "#dc2626", fillOpacity: 0.04, dashArray: "" },
+  "W. Sahara": { color: "#f59e0b", weight: 1.8, fillColor: "#f59e0b", fillOpacity: 0.05, dashArray: "6 4" },
+};
 
 export interface MapMarker {
   id: string;
