@@ -129,6 +129,31 @@ export default function AlgeriaLeafletMap({ cities, selectedId, onSelect }: Prop
             url="https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
           />
         </LayersControl.Overlay>
+        </LayersControl.Overlay>
+        {borders && (
+          <LayersControl.Overlay checked name="Country borders">
+            <GeoJSON
+              data={borders}
+              style={(feature) => {
+                const n = (feature?.properties as { NAME?: string; ADMIN?: string } | undefined)?.NAME
+                  ?? (feature?.properties as { ADMIN?: string } | undefined)?.ADMIN
+                  ?? "";
+                const key = n === "Western Sahara" ? "W. Sahara" : n;
+                return COUNTRY_STYLES[key] ?? { color: "#94a3b8", weight: 1, fillOpacity: 0 };
+              }}
+              onEachFeature={(feature, layer) => {
+                const n = (feature.properties as { NAME?: string; ADMIN?: string } | undefined)?.NAME
+                  ?? (feature.properties as { ADMIN?: string } | undefined)?.ADMIN
+                  ?? "";
+                const label =
+                  n === "W. Sahara" || n === "Western Sahara"
+                    ? "Western Sahara (disputed)"
+                    : n;
+                layer.bindTooltip(label, { sticky: true, direction: "center", className: "border-label" });
+              }}
+            />
+          </LayersControl.Overlay>
+        )}
       </LayersControl>
 
       {cities.map((c) => (
