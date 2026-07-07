@@ -106,7 +106,7 @@ export default function Home() {
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg" className="rounded-full px-7 h-12 shadow-warm">
-              <Link to="/guides">
+              <Link to="/signup" search={{ role: "seeker" }}>
                 <Compass className="h-4 w-4" />
                 {t("home.findYourGuide")}
               </Link>
