@@ -71,7 +71,6 @@ export const GUIDE_SUBCATEGORIES: Record<GuideCategory, string[]> = {
     "Luxury & Premium Guided Experiences",
     "Budget Backpacker Tour Guidance",
     "Solo Traveler Safety & Orientation",
-    "LGBTQ-Friendly Guidance (discreet, safety-focused)",
     "Airport & Border Entry Assistance",
     "Visa on Arrival & Entry Formalities Support",
   ],
