@@ -757,7 +757,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <Section title="Proof documents"
                 desc="Upload diplomas, certificates and any documents that prove your specialization. Optional but strongly recommended.">
                 {PROOF_TYPES.map((k) => (
