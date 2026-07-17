@@ -4,8 +4,9 @@ import { toast } from "sonner";
 import {
   Upload, Check, ChevronRight, ChevronLeft, Plus, Trash2, X,
   Shield, FileText, Languages, Briefcase, Calendar, DollarSign,
-  User, BadgeCheck, Clock, AlertCircle,
+  User, BadgeCheck, Clock, AlertCircle, ScrollText,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
