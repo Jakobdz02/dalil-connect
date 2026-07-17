@@ -719,7 +719,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <Section title="Category & specialization"
                 desc="Pick the single category that defines your service. The available specializations depend on it.">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
