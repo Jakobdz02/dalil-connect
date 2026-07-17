@@ -789,7 +789,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 7 && (
+            {step === 8 && (
               <Section title="Availability & pricing" desc="Set when you work and what you charge.">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Field label="Working hours — start">
