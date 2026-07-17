@@ -1002,3 +1002,18 @@ function DynamicLinks({ values, onChange }: { values: string[]; onChange: (v: st
     </div>
   );
 }
+
+function ConsentRow({
+  checked, onChange, children,
+}: { checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode }) {
+  return (
+    <label className="flex items-start gap-3 text-sm cursor-pointer">
+      <Checkbox
+        checked={checked}
+        onCheckedChange={(v) => onChange(v === true)}
+        className="mt-0.5"
+      />
+      <span className="text-foreground leading-relaxed">{children}</span>
+    </label>
+  );
+}
