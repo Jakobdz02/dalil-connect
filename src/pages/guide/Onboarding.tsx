@@ -857,7 +857,7 @@ export default function GuideOnboarding() {
                 <Button type="button" variant="ghost" onClick={() => saveStep()} disabled={saving}>
                   Save draft
                 </Button>
-                {step < 7 ? (
+                {step < TOTAL_STEPS ? (
                   <Button type="button" onClick={goNext} disabled={saving}>
                     Continue <ChevronRight className="h-4 w-4 ms-1" />
                   </Button>
