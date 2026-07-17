@@ -4,8 +4,9 @@ import { toast } from "sonner";
 import {
   Upload, Check, ChevronRight, ChevronLeft, Plus, Trash2, X,
   Shield, FileText, Languages, Briefcase, Calendar, DollarSign,
-  User, BadgeCheck, Clock, AlertCircle,
+  User, BadgeCheck, Clock, AlertCircle, ScrollText,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,13 +42,24 @@ interface DocRow {
 
 const STEPS = [
   { id: 1, label: "Basic Info", icon: User },
-  { id: 2, label: "Identity (KYC)", icon: Shield },
-  { id: 3, label: "Languages", icon: Languages },
-  { id: 4, label: "Specialization", icon: BadgeCheck },
-  { id: 5, label: "Proof Documents", icon: FileText },
-  { id: 6, label: "Experience", icon: Briefcase },
-  { id: 7, label: "Availability & Price", icon: DollarSign },
+  { id: 2, label: "Consent", icon: ScrollText },
+  { id: 3, label: "Identity (KYC)", icon: Shield },
+  { id: 4, label: "Languages", icon: Languages },
+  { id: 5, label: "Specialization", icon: BadgeCheck },
+  { id: 6, label: "Proof Documents", icon: FileText },
+  { id: 7, label: "Experience", icon: Briefcase },
+  { id: 8, label: "Availability & Price", icon: DollarSign },
 ] as const;
+
+const TOTAL_STEPS = 8;
+const TERMS_VERSION = "2026-05-01";
+const PRIVACY_VERSION = "2026-05-01";
+const APP_VERSION = "1.0.0";
+const COUNTRIES = [
+  "Algeria","Morocco","Tunisia","Egypt","Libya","France","Germany","United Kingdom",
+  "United States","Canada","Spain","Italy","Turkey","Saudi Arabia","United Arab Emirates",
+  "Qatar","Kuwait","Jordan","Lebanon","Syria","China","Japan","India","Other",
+];
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const PROFICIENCIES: Proficiency[] = ["native", "fluent", "intermediate"];
@@ -86,7 +98,20 @@ export default function GuideOnboarding() {
   const [bio, setBio] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
-  // Step 2 / 5
+  // Step 2 (Consent & Personal Info)
+  const [consentId, setConsentId] = useState<string | null>(null);
+  const [fullLegalName, setFullLegalName] = useState("");
+  const [dob, setDob] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [countryOfResidence, setCountryOfResidence] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("");
+  const [agreeAccurate, setAgreeAccurate] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeKyc, setAgreeKyc] = useState(false);
+  const [agreeApproval, setAgreeApproval] = useState(false);
+
+  // Step 3 / 6 (docs)
   const [docs, setDocs] = useState<DocRow[]>([]);
 
   // Step 3
@@ -159,6 +184,25 @@ export default function GuideOnboarding() {
           .select("*")
           .eq("guide_id", g.id);
         setDocs(((d as DocRow[]) ?? []));
+
+        const { data: c } = await (supabase as any)
+          .from("guide_consents")
+          .select("*")
+          .eq("guide_id", g.id)
+          .maybeSingle();
+        if (c) {
+          setConsentId(c.id);
+          setFullLegalName(c.full_legal_name ?? "");
+          setDob(c.date_of_birth ?? "");
+          setNationality(c.nationality ?? "");
+          setCountryOfResidence(c.country_of_residence ?? "");
+          setPreferredLanguage(c.preferred_language ?? "");
+          setAgreeAccurate(!!c.accepted_accurate_info);
+          setAgreeTerms(!!c.accepted_terms);
+          setAgreePrivacy(!!c.accepted_privacy);
+          setAgreeKyc(!!c.kyc_consent);
+          setAgreeApproval(!!c.understood_approval);
+        }
       }
       setLoading(false);
     })();
@@ -304,6 +348,49 @@ export default function GuideOnboarding() {
     return true;
   };
 
+  // ---------- Consent persistence ----------
+  const persistConsent = async (): Promise<boolean> => {
+    if (!user) return false;
+    const gid = await ensureGuideRow();
+    if (!gid) return false;
+    let ip: string | null = null;
+    try {
+      const r = await fetch("https://api.ipify.org?format=json");
+      if (r.ok) ip = (await r.json())?.ip ?? null;
+    } catch { /* ignore */ }
+    const payload = {
+      guide_id: gid,
+      user_id: user.id,
+      full_legal_name: fullLegalName.trim(),
+      date_of_birth: dob,
+      nationality: nationality.trim(),
+      country_of_residence: countryOfResidence.trim(),
+      city: city.trim(),
+      phone: phone.trim(),
+      preferred_language: preferredLanguage.trim(),
+      accepted_accurate_info: agreeAccurate,
+      accepted_terms: agreeTerms,
+      accepted_privacy: agreePrivacy,
+      kyc_consent: agreeKyc,
+      understood_approval: agreeApproval,
+      terms_version: TERMS_VERSION,
+      privacy_version: PRIVACY_VERSION,
+      consent_ip: ip,
+      app_version: APP_VERSION,
+      consented_at: new Date().toISOString(),
+    };
+    const client = supabase as any;
+    if (consentId) {
+      const { error } = await client.from("guide_consents").update(payload).eq("id", consentId);
+      if (error) { toast.error(error.message); return false; }
+    } else {
+      const { data, error } = await client.from("guide_consents").insert(payload).select("id").single();
+      if (error) { toast.error(error.message); return false; }
+      setConsentId(data.id);
+    }
+    return true;
+  };
+
   // ---------- Validation per step ----------
   const validate = (s: number): string | null => {
     if (s === 1) {
@@ -315,24 +402,38 @@ export default function GuideOnboarding() {
       if (!photoUrl) return "Profile photo is required";
     }
     if (s === 2) {
+      if (!fullLegalName.trim()) return "Full legal name is required";
+      if (!dob) return "Date of birth is required";
+      if (!nationality.trim()) return "Nationality is required";
+      if (!countryOfResidence.trim()) return "Country of residence is required";
+      if (!city.trim()) return "City is required";
+      if (!phone.trim()) return "Phone number is required";
+      if (!preferredLanguage.trim()) return "Preferred language is required";
+      if (!agreeAccurate) return "Please confirm your information is accurate";
+      if (!agreeTerms) return "You must agree to the Terms of Service";
+      if (!agreePrivacy) return "You must confirm you've read the Privacy Policy";
+      if (!agreeKyc) return "KYC consent is required to continue";
+      if (!agreeApproval) return "Please confirm you understand the verification requirement";
+    }
+    if (s === 3) {
       const has = (t: DocType) => docs.some((d) => d.doc_type === t);
       if (!has("id_front")) return "ID/passport front is required";
       if (!has("selfie")) return "Selfie verification is required";
     }
-    if (s === 3) {
+    if (s === 4) {
       if (langs.length === 0) return "Add at least one language";
       if (langs.some((l) => !l.language)) return "Pick a language for every row";
     }
-    if (s === 4) {
+    if (s === 5) {
       if (!["tourist", "student", "investor"].includes(category))
         return "Choose Tourist, Student or Investor";
       if (!subcategory) return "Specialization is required";
     }
-    if (s === 6) {
+    if (s === 7) {
       if (!yearsExperience || Number(yearsExperience) < 0) return "Years of experience is required";
       if (!expertise.trim()) return "Expertise description is required";
     }
-    if (s === 7) {
+    if (s === 8) {
       if (availableDays.length === 0) return "Pick at least one available day";
       if (!pricePerHour || Number(pricePerHour) <= 0) return "Price per hour is required";
     }
@@ -344,18 +445,23 @@ export default function GuideOnboarding() {
     if (err) return toast.error(err);
     const ok = await saveStep(true);
     if (!ok) return;
-    if (step === 3) await persistLanguages();
-    setStep((s) => Math.min(7, s + 1));
+    if (step === 2) {
+      const cok = await persistConsent();
+      if (!cok) return;
+    }
+    if (step === 4) await persistLanguages();
+    setStep((s) => Math.min(TOTAL_STEPS, s + 1));
   };
 
   const submit = async () => {
-    for (let s = 1; s <= 7; s++) {
+    for (let s = 1; s <= TOTAL_STEPS; s++) {
       const err = validate(s);
       if (err) { setStep(s); return toast.error(err); }
     }
     if (!guideId) return;
     setSaving(true);
     await saveStep(true);
+    await persistConsent();
     await persistLanguages();
     const { error } = await supabase
       .from("guide_profiles")
@@ -465,6 +571,94 @@ export default function GuideOnboarding() {
             )}
 
             {step === 2 && (
+              <Section title="Personal information & consent"
+                desc="Before uploading any identity document, review your information and accept our legal terms.">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="Full legal name" required>
+                    <Input value={fullLegalName} onChange={(e) => setFullLegalName(e.target.value)}
+                      placeholder="Exactly as shown on your ID" />
+                  </Field>
+                  <Field label="Date of birth" required>
+                    <Input type="date" value={dob} onChange={(e) => setDob(e.target.value)}
+                      max={new Date().toISOString().slice(0, 10)} />
+                  </Field>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="Nationality" required>
+                    <Select value={nationality} onValueChange={setNationality}>
+                      <SelectTrigger><SelectValue placeholder="Select nationality" /></SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Country of residence" required>
+                    <Select value={countryOfResidence} onValueChange={setCountryOfResidence}>
+                      <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="City" required>
+                    <Input value={city} onChange={(e) => setCity(e.target.value)} />
+                  </Field>
+                  <Field label="Phone number" required>
+                    <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+213 ..." />
+                  </Field>
+                </div>
+                <Field label="Preferred language" required>
+                  <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
+                    <SelectTrigger><SelectValue placeholder="Select preferred language" /></SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {LANGUAGES.map((opt) => (
+                        <SelectItem key={opt.code} value={opt.code}>{opt.flag} {opt.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <div className="rounded-xl border bg-background/50 p-4 space-y-3">
+                  <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                    <ScrollText className="h-4 w-4" /> Required agreements
+                  </h3>
+                  <ConsentRow checked={agreeAccurate} onChange={setAgreeAccurate}>
+                    I confirm that all information I provide is accurate and truthful.
+                  </ConsentRow>
+                  <ConsentRow checked={agreeTerms} onChange={setAgreeTerms}>
+                    I agree to the{" "}
+                    <Link to="/terms" target="_blank" className="text-primary underline">
+                      Terms of Service
+                    </Link>.
+                  </ConsentRow>
+                  <ConsentRow checked={agreePrivacy} onChange={setAgreePrivacy}>
+                    I have read the{" "}
+                    <Link to="/privacy" target="_blank" className="text-primary underline">
+                      Privacy Policy
+                    </Link>.
+                  </ConsentRow>
+                  <ConsentRow checked={agreeKyc} onChange={setAgreeKyc}>
+                    I consent to DALIL processing my personal data and identity documents for
+                    identity verification (KYC), fraud prevention, trust &amp; safety, and
+                    compliance purposes.
+                  </ConsentRow>
+                  <ConsentRow checked={agreeApproval} onChange={setAgreeApproval}>
+                    I understand that my guide profile cannot be approved until identity
+                    verification is completed.
+                  </ConsentRow>
+                  <p className="text-[11px] text-muted-foreground pt-2 border-t">
+                    Terms v{TERMS_VERSION} · Privacy v{PRIVACY_VERSION} · App v{APP_VERSION}.
+                    Your acceptance and technical details (timestamp, IP address when available)
+                    are recorded for compliance.
+                  </p>
+                </div>
+              </Section>
+            )}
+
+            {step === 3 && (
               <Section title="Identity verification (KYC)"
                 desc="Upload clear photos of your ID document and a selfie. Documents are private and only visible to verification admins.">
                 <div className="space-y-4">
@@ -482,7 +676,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <Section title="Languages you speak"
                 desc="Add every language and your proficiency. This drives client matching.">
                 <div className="space-y-3">
@@ -525,7 +719,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <Section title="Category & specialization"
                 desc="Pick the single category that defines your service. The available specializations depend on it.">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -563,7 +757,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <Section title="Proof documents"
                 desc="Upload diplomas, certificates and any documents that prove your specialization. Optional but strongly recommended.">
                 {PROOF_TYPES.map((k) => (
@@ -573,7 +767,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 6 && (
+            {step === 7 && (
               <Section title="Experience" desc="Help admins and clients understand your background.">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Field label="Years of experience" required>
@@ -595,7 +789,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 7 && (
+            {step === 8 && (
               <Section title="Availability & pricing" desc="Set when you work and what you charge.">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Field label="Working hours — start">
@@ -663,7 +857,7 @@ export default function GuideOnboarding() {
                 <Button type="button" variant="ghost" onClick={() => saveStep()} disabled={saving}>
                   Save draft
                 </Button>
-                {step < 7 ? (
+                {step < TOTAL_STEPS ? (
                   <Button type="button" onClick={goNext} disabled={saving}>
                     Continue <ChevronRight className="h-4 w-4 ms-1" />
                   </Button>
@@ -806,5 +1000,20 @@ function DynamicLinks({ values, onChange }: { values: string[]; onChange: (v: st
         <Plus className="h-4 w-4 me-1" /> Add link
       </Button>
     </div>
+  );
+}
+
+function ConsentRow({
+  checked, onChange, children,
+}: { checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode }) {
+  return (
+    <label className="flex items-start gap-3 text-sm cursor-pointer">
+      <Checkbox
+        checked={checked}
+        onCheckedChange={(v) => onChange(v === true)}
+        className="mt-0.5"
+      />
+      <span className="text-foreground leading-relaxed">{children}</span>
+    </label>
   );
 }

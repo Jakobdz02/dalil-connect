@@ -62,6 +62,89 @@ export type Database = {
           },
         ]
       }
+      guide_consents: {
+        Row: {
+          accepted_accurate_info: boolean
+          accepted_privacy: boolean
+          accepted_terms: boolean
+          app_version: string | null
+          city: string
+          consent_ip: string | null
+          consented_at: string
+          country_of_residence: string
+          created_at: string
+          date_of_birth: string
+          full_legal_name: string
+          guide_id: string
+          id: string
+          kyc_consent: boolean
+          nationality: string
+          phone: string
+          preferred_language: string
+          privacy_version: string
+          terms_version: string
+          understood_approval: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_accurate_info?: boolean
+          accepted_privacy?: boolean
+          accepted_terms?: boolean
+          app_version?: string | null
+          city: string
+          consent_ip?: string | null
+          consented_at?: string
+          country_of_residence: string
+          created_at?: string
+          date_of_birth: string
+          full_legal_name: string
+          guide_id: string
+          id?: string
+          kyc_consent?: boolean
+          nationality: string
+          phone: string
+          preferred_language: string
+          privacy_version: string
+          terms_version: string
+          understood_approval?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_accurate_info?: boolean
+          accepted_privacy?: boolean
+          accepted_terms?: boolean
+          app_version?: string | null
+          city?: string
+          consent_ip?: string | null
+          consented_at?: string
+          country_of_residence?: string
+          created_at?: string
+          date_of_birth?: string
+          full_legal_name?: string
+          guide_id?: string
+          id?: string
+          kyc_consent?: boolean
+          nationality?: string
+          phone?: string
+          preferred_language?: string
+          privacy_version?: string
+          terms_version?: string
+          understood_approval?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_consents_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: true
+            referencedRelation: "guide_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guide_documents: {
         Row: {
           doc_type: string
