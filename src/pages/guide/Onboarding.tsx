@@ -42,13 +42,24 @@ interface DocRow {
 
 const STEPS = [
   { id: 1, label: "Basic Info", icon: User },
-  { id: 2, label: "Identity (KYC)", icon: Shield },
-  { id: 3, label: "Languages", icon: Languages },
-  { id: 4, label: "Specialization", icon: BadgeCheck },
-  { id: 5, label: "Proof Documents", icon: FileText },
-  { id: 6, label: "Experience", icon: Briefcase },
-  { id: 7, label: "Availability & Price", icon: DollarSign },
+  { id: 2, label: "Consent", icon: ScrollText },
+  { id: 3, label: "Identity (KYC)", icon: Shield },
+  { id: 4, label: "Languages", icon: Languages },
+  { id: 5, label: "Specialization", icon: BadgeCheck },
+  { id: 6, label: "Proof Documents", icon: FileText },
+  { id: 7, label: "Experience", icon: Briefcase },
+  { id: 8, label: "Availability & Price", icon: DollarSign },
 ] as const;
+
+const TOTAL_STEPS = 8;
+const TERMS_VERSION = "2026-05-01";
+const PRIVACY_VERSION = "2026-05-01";
+const APP_VERSION = "1.0.0";
+const COUNTRIES = [
+  "Algeria","Morocco","Tunisia","Egypt","Libya","France","Germany","United Kingdom",
+  "United States","Canada","Spain","Italy","Turkey","Saudi Arabia","United Arab Emirates",
+  "Qatar","Kuwait","Jordan","Lebanon","Syria","China","Japan","India","Other",
+];
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const PROFICIENCIES: Proficiency[] = ["native", "fluent", "intermediate"];
