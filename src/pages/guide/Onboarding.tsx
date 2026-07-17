@@ -676,7 +676,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <Section title="Languages you speak"
                 desc="Add every language and your proficiency. This drives client matching.">
                 <div className="space-y-3">
