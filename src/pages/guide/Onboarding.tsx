@@ -98,7 +98,20 @@ export default function GuideOnboarding() {
   const [bio, setBio] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
-  // Step 2 / 5
+  // Step 2 (Consent & Personal Info)
+  const [consentId, setConsentId] = useState<string | null>(null);
+  const [fullLegalName, setFullLegalName] = useState("");
+  const [dob, setDob] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [countryOfResidence, setCountryOfResidence] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("");
+  const [agreeAccurate, setAgreeAccurate] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeKyc, setAgreeKyc] = useState(false);
+  const [agreeApproval, setAgreeApproval] = useState(false);
+
+  // Step 3 / 6 (docs)
   const [docs, setDocs] = useState<DocRow[]>([]);
 
   // Step 3
