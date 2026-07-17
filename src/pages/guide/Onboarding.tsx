@@ -767,7 +767,7 @@ export default function GuideOnboarding() {
               </Section>
             )}
 
-            {step === 6 && (
+            {step === 7 && (
               <Section title="Experience" desc="Help admins and clients understand your background.">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Field label="Years of experience" required>
