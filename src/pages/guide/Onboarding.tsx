@@ -184,6 +184,25 @@ export default function GuideOnboarding() {
           .select("*")
           .eq("guide_id", g.id);
         setDocs(((d as DocRow[]) ?? []));
+
+        const { data: c } = await (supabase as any)
+          .from("guide_consents")
+          .select("*")
+          .eq("guide_id", g.id)
+          .maybeSingle();
+        if (c) {
+          setConsentId(c.id);
+          setFullLegalName(c.full_legal_name ?? "");
+          setDob(c.date_of_birth ?? "");
+          setNationality(c.nationality ?? "");
+          setCountryOfResidence(c.country_of_residence ?? "");
+          setPreferredLanguage(c.preferred_language ?? "");
+          setAgreeAccurate(!!c.accepted_accurate_info);
+          setAgreeTerms(!!c.accepted_terms);
+          setAgreePrivacy(!!c.accepted_privacy);
+          setAgreeKyc(!!c.kyc_consent);
+          setAgreeApproval(!!c.understood_approval);
+        }
       }
       setLoading(false);
     })();
