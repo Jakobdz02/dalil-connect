@@ -348,6 +348,49 @@ export default function GuideOnboarding() {
     return true;
   };
 
+  // ---------- Consent persistence ----------
+  const persistConsent = async (): Promise<boolean> => {
+    if (!user) return false;
+    const gid = await ensureGuideRow();
+    if (!gid) return false;
+    let ip: string | null = null;
+    try {
+      const r = await fetch("https://api.ipify.org?format=json");
+      if (r.ok) ip = (await r.json())?.ip ?? null;
+    } catch { /* ignore */ }
+    const payload = {
+      guide_id: gid,
+      user_id: user.id,
+      full_legal_name: fullLegalName.trim(),
+      date_of_birth: dob,
+      nationality: nationality.trim(),
+      country_of_residence: countryOfResidence.trim(),
+      city: city.trim(),
+      phone: phone.trim(),
+      preferred_language: preferredLanguage.trim(),
+      accepted_accurate_info: agreeAccurate,
+      accepted_terms: agreeTerms,
+      accepted_privacy: agreePrivacy,
+      kyc_consent: agreeKyc,
+      understood_approval: agreeApproval,
+      terms_version: TERMS_VERSION,
+      privacy_version: PRIVACY_VERSION,
+      consent_ip: ip,
+      app_version: APP_VERSION,
+      consented_at: new Date().toISOString(),
+    };
+    const client = supabase as any;
+    if (consentId) {
+      const { error } = await client.from("guide_consents").update(payload).eq("id", consentId);
+      if (error) { toast.error(error.message); return false; }
+    } else {
+      const { data, error } = await client.from("guide_consents").insert(payload).select("id").single();
+      if (error) { toast.error(error.message); return false; }
+      setConsentId(data.id);
+    }
+    return true;
+  };
+
   // ---------- Validation per step ----------
   const validate = (s: number): string | null => {
     if (s === 1) {
@@ -359,24 +402,38 @@ export default function GuideOnboarding() {
       if (!photoUrl) return "Profile photo is required";
     }
     if (s === 2) {
+      if (!fullLegalName.trim()) return "Full legal name is required";
+      if (!dob) return "Date of birth is required";
+      if (!nationality.trim()) return "Nationality is required";
+      if (!countryOfResidence.trim()) return "Country of residence is required";
+      if (!city.trim()) return "City is required";
+      if (!phone.trim()) return "Phone number is required";
+      if (!preferredLanguage.trim()) return "Preferred language is required";
+      if (!agreeAccurate) return "Please confirm your information is accurate";
+      if (!agreeTerms) return "You must agree to the Terms of Service";
+      if (!agreePrivacy) return "You must confirm you've read the Privacy Policy";
+      if (!agreeKyc) return "KYC consent is required to continue";
+      if (!agreeApproval) return "Please confirm you understand the verification requirement";
+    }
+    if (s === 3) {
       const has = (t: DocType) => docs.some((d) => d.doc_type === t);
       if (!has("id_front")) return "ID/passport front is required";
       if (!has("selfie")) return "Selfie verification is required";
     }
-    if (s === 3) {
+    if (s === 4) {
       if (langs.length === 0) return "Add at least one language";
       if (langs.some((l) => !l.language)) return "Pick a language for every row";
     }
-    if (s === 4) {
+    if (s === 5) {
       if (!["tourist", "student", "investor"].includes(category))
         return "Choose Tourist, Student or Investor";
       if (!subcategory) return "Specialization is required";
     }
-    if (s === 6) {
+    if (s === 7) {
       if (!yearsExperience || Number(yearsExperience) < 0) return "Years of experience is required";
       if (!expertise.trim()) return "Expertise description is required";
     }
-    if (s === 7) {
+    if (s === 8) {
       if (availableDays.length === 0) return "Pick at least one available day";
       if (!pricePerHour || Number(pricePerHour) <= 0) return "Price per hour is required";
     }
@@ -388,18 +445,23 @@ export default function GuideOnboarding() {
     if (err) return toast.error(err);
     const ok = await saveStep(true);
     if (!ok) return;
-    if (step === 3) await persistLanguages();
-    setStep((s) => Math.min(7, s + 1));
+    if (step === 2) {
+      const cok = await persistConsent();
+      if (!cok) return;
+    }
+    if (step === 4) await persistLanguages();
+    setStep((s) => Math.min(TOTAL_STEPS, s + 1));
   };
 
   const submit = async () => {
-    for (let s = 1; s <= 7; s++) {
+    for (let s = 1; s <= TOTAL_STEPS; s++) {
       const err = validate(s);
       if (err) { setStep(s); return toast.error(err); }
     }
     if (!guideId) return;
     setSaving(true);
     await saveStep(true);
+    await persistConsent();
     await persistLanguages();
     const { error } = await supabase
       .from("guide_profiles")
