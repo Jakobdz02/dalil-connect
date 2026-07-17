@@ -60,53 +60,42 @@ export default function Signup() {
 
     setSubmitting(true);
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: { name, role, date_of_birth: dob },
-      },
-    });
-
-    if (error) {
-      setSubmitting(false);
-      setErrorMsg(error.message);
-      return;
-    }
-
-    if (!data.session) {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) {
-        setSubmitting(false);
-        setErrorMsg(signInError.message);
-        return;
-      }
-    }
-
-    if (data.user) {
-      const { error: profileError } = await supabase.from("profiles").upsert(
-        {
-          id: data.user.id,
-          name,
-          email,
-          role,
-          date_of_birth: dob,
-          language_preference: "en",
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name, role, date_of_birth: dob },
         },
-        { onConflict: "id" },
-      );
+      });
 
-      if (profileError) {
+      if (error) {
         setSubmitting(false);
-        setErrorMsg(profileError.message);
+        setErrorMsg(error.message);
         return;
       }
-    }
 
-    setSubmitting(false);
-    navigate({ to: HOME_FOR_ROLE[role] });
+      if (!data.session) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (signInError) {
+          setSubmitting(false);
+          setErrorMsg(signInError.message);
+          return;
+        }
+      }
+
+      setSubmitting(false);
+      navigate({ to: HOME_FOR_ROLE[role] });
+    } catch (err) {
+      setSubmitting(false);
+      const msg = err instanceof Error ? err.message : "Signup failed. Please try again.";
+      setErrorMsg(msg);
+    }
   };
+
 
   return (
     <div className="min-h-screen grid place-items-center bg-background px-4 py-10">
