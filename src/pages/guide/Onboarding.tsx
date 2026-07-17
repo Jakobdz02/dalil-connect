@@ -571,6 +571,94 @@ export default function GuideOnboarding() {
             )}
 
             {step === 2 && (
+              <Section title="Personal information & consent"
+                desc="Before uploading any identity document, review your information and accept our legal terms.">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="Full legal name" required>
+                    <Input value={fullLegalName} onChange={(e) => setFullLegalName(e.target.value)}
+                      placeholder="Exactly as shown on your ID" />
+                  </Field>
+                  <Field label="Date of birth" required>
+                    <Input type="date" value={dob} onChange={(e) => setDob(e.target.value)}
+                      max={new Date().toISOString().slice(0, 10)} />
+                  </Field>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="Nationality" required>
+                    <Select value={nationality} onValueChange={setNationality}>
+                      <SelectTrigger><SelectValue placeholder="Select nationality" /></SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Country of residence" required>
+                    <Select value={countryOfResidence} onValueChange={setCountryOfResidence}>
+                      <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="City" required>
+                    <Input value={city} onChange={(e) => setCity(e.target.value)} />
+                  </Field>
+                  <Field label="Phone number" required>
+                    <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+213 ..." />
+                  </Field>
+                </div>
+                <Field label="Preferred language" required>
+                  <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
+                    <SelectTrigger><SelectValue placeholder="Select preferred language" /></SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {LANGUAGES.map((opt) => (
+                        <SelectItem key={opt.code} value={opt.code}>{opt.flag} {opt.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <div className="rounded-xl border bg-background/50 p-4 space-y-3">
+                  <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                    <ScrollText className="h-4 w-4" /> Required agreements
+                  </h3>
+                  <ConsentRow checked={agreeAccurate} onChange={setAgreeAccurate}>
+                    I confirm that all information I provide is accurate and truthful.
+                  </ConsentRow>
+                  <ConsentRow checked={agreeTerms} onChange={setAgreeTerms}>
+                    I agree to the{" "}
+                    <Link to="/terms" target="_blank" className="text-primary underline">
+                      Terms of Service
+                    </Link>.
+                  </ConsentRow>
+                  <ConsentRow checked={agreePrivacy} onChange={setAgreePrivacy}>
+                    I have read the{" "}
+                    <Link to="/privacy" target="_blank" className="text-primary underline">
+                      Privacy Policy
+                    </Link>.
+                  </ConsentRow>
+                  <ConsentRow checked={agreeKyc} onChange={setAgreeKyc}>
+                    I consent to DALIL processing my personal data and identity documents for
+                    identity verification (KYC), fraud prevention, trust &amp; safety, and
+                    compliance purposes.
+                  </ConsentRow>
+                  <ConsentRow checked={agreeApproval} onChange={setAgreeApproval}>
+                    I understand that my guide profile cannot be approved until identity
+                    verification is completed.
+                  </ConsentRow>
+                  <p className="text-[11px] text-muted-foreground pt-2 border-t">
+                    Terms v{TERMS_VERSION} · Privacy v{PRIVACY_VERSION} · App v{APP_VERSION}.
+                    Your acceptance and technical details (timestamp, IP address when available)
+                    are recorded for compliance.
+                  </p>
+                </div>
+              </Section>
+            )}
+
+            {step === 3 && (
               <Section title="Identity verification (KYC)"
                 desc="Upload clear photos of your ID document and a selfie. Documents are private and only visible to verification admins.">
                 <div className="space-y-4">
